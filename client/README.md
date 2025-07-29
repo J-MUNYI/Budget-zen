@@ -44,7 +44,7 @@ Create a `.env` file in the `client` directory:
 
 - Deploy the frontend on [Vercel](https://vercel.com/) or [Netlify](https://netlify.com/).
 - Set the build command to `npm run build` and the output directory to `dist`.
-- Deployment link - https://budget-zen.onrender.com
+- Deployment link - https://budget-zen.onrender.com ( For backend. Frontend not yet deployed but currently runs locally via Vite [npm run dev] and is fully functional.
 
 ## Author
 Joan Munyi - (J-MUNYI)GitHub
