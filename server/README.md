@@ -36,6 +36,7 @@ The server will run on `http://localhost:5000` by default.
   - **Root Directory:** `server`
   - **Build Command:** `echo "No build step"`
   - **Start Command:** `npm start`
+  - Deployment link -  https://budget-zen.onrender.com
 
 ---
 
