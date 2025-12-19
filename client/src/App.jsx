@@ -3,6 +3,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import AddExpense from "./pages/AddExpense";
+import AuthCallback from "./pages/AuthCallback";
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/add-expense" element={<AddExpense />} />
+        <Route path="/auth/callback" element={<AuthCallback />} />
       </Routes>
     </BrowserRouter>
   );
