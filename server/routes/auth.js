@@ -35,11 +35,11 @@ router.get('/google/callback',
   }
 );
 
-// Facebook OAuth routes
-router.get('/facebook', passport.authenticate('facebook', { scope: ['email'] }));
+// Instagram OAuth routes
+router.get('/instagram', passport.authenticate('instagram'));
 
-router.get('/facebook/callback',
-  passport.authenticate('facebook', { session: false, failureRedirect: '/login' }),
+router.get('/instagram/callback',
+  passport.authenticate('instagram', { session: false, failureRedirect: '/login' }),
   (req, res) => {
     try {
       const token = jwt.sign({ id: req.user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });

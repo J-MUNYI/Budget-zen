@@ -1,9 +1,23 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useAuth } from "./context/AuthContext";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import AddExpense from "./pages/AddExpense";
 import AuthCallback from "./pages/AuthCallback";
+
+function ProtectedRoute({ children }) {
+  const { user, loading } = useAuth();
+  if (loading) return (
+    <div className="auth-callback-shell">
+      <div className="auth-callback-card">
+        <div className="auth-callback-spinner" />
+        <p>Loading your workspace...</p>
+      </div>
+    </div>
+  );
+  return user ? children : <Navigate to="/login" />;
+}
 
 function App() {
   return (
@@ -12,13 +26,26 @@ function App() {
         <Route path="/" element={<Navigate to="/login" />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/add-expense" element={<AddExpense />} />
         <Route path="/auth/callback" element={<AuthCallback />} />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/add-expense"
+          element={
+            <ProtectedRoute>
+              <AddExpense />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );
 }
 
 export default App;
-

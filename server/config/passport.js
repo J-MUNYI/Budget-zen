@@ -1,8 +1,7 @@
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
-const FacebookStrategy = require('passport-facebook').Strategy;
+const InstagramStrategy = require('passport-instagram').Strategy;
 const User = require('../models/User');
-const jwt = require('jsonwebtoken');
 
 // Serialize user for session
 passport.serializeUser((user, done) => {
@@ -66,43 +65,43 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
   );
 }
 
-// Facebook OAuth Strategy (only if configured)
-if (process.env.FACEBOOK_APP_ID && process.env.FACEBOOK_APP_SECRET) {
+// Instagram OAuth Strategy (only if configured)
+if (process.env.INSTAGRAM_CLIENT_ID && process.env.INSTAGRAM_CLIENT_SECRET) {
   passport.use(
-    new FacebookStrategy(
+    new InstagramStrategy(
       {
-        clientID: process.env.FACEBOOK_APP_ID,
-        clientSecret: process.env.FACEBOOK_APP_SECRET,
+        clientID: process.env.INSTAGRAM_CLIENT_ID,
+        clientSecret: process.env.INSTAGRAM_CLIENT_SECRET,
         callbackURL:
-          process.env.FACEBOOK_CALLBACK_URL ||
-          `${process.env.BACKEND_URL || 'http://localhost:5000'}/api/auth/facebook/callback`,
-        profileFields: ['id', 'displayName', 'emails'],
+          process.env.INSTAGRAM_CALLBACK_URL ||
+          `${process.env.BACKEND_URL || 'http://localhost:5000'}/api/auth/instagram/callback`,
       },
       async (accessToken, refreshToken, profile, done) => {
         try {
-          // Facebook may not always provide email
-          const email = profile.emails?.[0]?.value || `${profile.id}@facebook.com`;
+          // Instagram Basic-style flows may not provide an email, so we generate a stable placeholder.
+          const email = `${profile.id}@instagram.local`;
+          const name = profile.displayName || profile.username || `Instagram User ${profile.id}`;
 
-          // Check if user already exists
           let user = await User.findOne({
-            $or: [{ email: email }, { facebookId: profile.id }],
+            $or: [{ email }, { instagramId: profile.id }],
           });
 
           if (user) {
-            // User exists, update Facebook ID if not set
-            if (!user.facebookId) {
-              user.facebookId = profile.id;
+            if (!user.instagramId) {
+              user.instagramId = profile.id;
+              if (!user.name) {
+                user.name = name;
+              }
               await user.save();
             }
             return done(null, user);
           }
 
-          // Create new user
           user = new User({
-            name: profile.displayName,
-            email: email,
-            facebookId: profile.id,
-            password: null, // OAuth users don't have passwords
+            name,
+            email,
+            instagramId: profile.id,
+            password: null,
           });
 
           await user.save();
@@ -115,7 +114,7 @@ if (process.env.FACEBOOK_APP_ID && process.env.FACEBOOK_APP_SECRET) {
   );
 } else {
   console.warn(
-    'Facebook OAuth not configured: missing FACEBOOK_APP_ID or FACEBOOK_APP_SECRET. Facebook login will be disabled.'
+    'Instagram OAuth not configured: missing INSTAGRAM_CLIENT_ID or INSTAGRAM_CLIENT_SECRET. Instagram login will be disabled.'
   );
 }
 

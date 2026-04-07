@@ -7,11 +7,11 @@ const userSchema = new mongoose.Schema({
     type: String, 
     required: function() {
       // Password is required only if user doesn't have OAuth IDs
-      return !this.googleId && !this.facebookId;
+      return !this.googleId && !this.instagramId;
     }
   },
   googleId: { type: String, sparse: true },
-  facebookId: { type: String, sparse: true },
+  instagramId: { type: String, sparse: true },
   createdAt: { type: Date, default: Date.now }
 });
 
