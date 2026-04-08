@@ -1352,6 +1352,11 @@ button {
   flex-shrink: 0;
 }
 
+.auth-social-mark.is-google {
+  background: #fff;
+  box-shadow: inset 0 0 0 1px rgba(66, 133, 244, 0.12);
+}
+
 .auth-social-mark.is-instagram {
   background: linear-gradient(135deg, var(--instagram-start), var(--instagram-mid), var(--instagram-end));
   color: #fff;
