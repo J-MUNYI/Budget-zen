@@ -11,6 +11,7 @@ import {
   YAxis,
 } from "recharts";
 import AuthShell from "../components/AuthShell";
+import { InstagramIcon } from "../components/ui/AppIcons";
 
 const sampleData = [
   { name: "Mon", value: 1200 },
@@ -245,7 +246,9 @@ export default function Register() {
             <span>Continue with Google</span>
           </button>
           <button type="button" onClick={() => handleSocialLogin("Instagram")} className="auth-social-button">
-            <span className="auth-social-mark">I</span>
+            <span className="auth-social-mark is-instagram">
+              <InstagramIcon className="auth-social-icon" />
+            </span>
             <span>Continue with Instagram</span>
           </button>
         </>

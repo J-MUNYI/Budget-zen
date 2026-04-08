@@ -11,6 +11,7 @@ import {
   YAxis,
 } from "recharts";
 import AuthShell from "../components/AuthShell";
+import { InstagramIcon } from "../components/ui/AppIcons";
 
 const sampleData = [
   { name: "Mon", value: 3200 },
@@ -115,7 +116,7 @@ export default function Login() {
     <AuthShell
       eyebrow="Welcome back"
       title="Sign in to the same polished workspace you land in after login."
-      copy="Be wise with your coins."
+      copy="Sign up if you are new."
       statLabel="Weekly cash flow"
       statValue="+18.4%"
       chart={<AuthChart />}
@@ -129,7 +130,9 @@ export default function Login() {
             <span>Continue with Google</span>
           </button>
           <button type="button" onClick={() => handleSocialLogin("Instagram")} className="auth-social-button">
-            <span className="auth-social-mark">I</span>
+            <span className="auth-social-mark is-instagram">
+              <InstagramIcon className="auth-social-icon" />
+            </span>
             <span>Continue with Instagram</span>
           </button>
         </>

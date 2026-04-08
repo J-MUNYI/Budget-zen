@@ -8,6 +8,8 @@
   --auth-bg: #040309;
   --auth-surface: rgba(11, 7, 18, 0.9);
   --auth-border: rgba(255, 255, 255, 0.1);
+  --auth-nav-bg: rgba(255, 255, 255, 0.08);
+  --auth-nav-link-hover: rgba(255, 255, 255, 0.08);
   --bg: #f4f1ef;
   --bg-elevated: rgba(255, 255, 255, 0.82);
   --sidebar-bg: rgba(255, 255, 255, 0.74);
@@ -31,9 +33,17 @@
   --line-start: #6d58e5;
   --line-end: #4a37ba;
   --surface-gradient: radial-gradient(circle at top left, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.42));
+  --instagram-start: #f58529;
+  --instagram-mid: #dd2a7b;
+  --instagram-end: #515bd4;
 }
 
 :root[data-theme="dark"] {
+  --auth-bg: #060814;
+  --auth-surface: rgba(11, 16, 33, 0.92);
+  --auth-border: rgba(255, 255, 255, 0.08);
+  --auth-nav-bg: rgba(18, 25, 52, 0.62);
+  --auth-nav-link-hover: rgba(143, 125, 255, 0.14);
   --bg: #0d1022;
   --bg-elevated: rgba(18, 23, 46, 0.86);
   --sidebar-bg: rgba(17, 22, 42, 0.8);
@@ -369,13 +379,40 @@ button {
   gap: 10px;
   cursor: pointer;
   box-shadow: inset 0 0 0 1px var(--border);
+  transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.shell-icon-button:hover {
+  transform: translateY(-1px);
+  box-shadow: inset 0 0 0 1px var(--border-strong);
 }
 
 .shell-theme-orb {
-  width: 12px;
-  height: 12px;
+  width: 30px;
+  height: 30px;
   border-radius: 999px;
-  background: linear-gradient(135deg, var(--accent-warm), var(--accent));
+  background: linear-gradient(135deg, color-mix(in srgb, var(--accent-warm) 84%, white 16%), color-mix(in srgb, var(--accent) 88%, white 12%));
+  display: grid;
+  place-items: center;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.shell-theme-button {
+  padding-inline: 14px 18px;
+}
+
+.shell-theme-button.is-compact {
+  min-width: auto;
+  height: 46px;
+  padding-inline: 12px;
+  border-radius: 16px;
+  font-size: 0.92rem;
+}
+
+.shell-theme-button.is-compact .shell-theme-orb {
+  width: 24px;
+  height: 24px;
 }
 
 .shell-content {
@@ -1100,12 +1137,31 @@ button {
 
 .auth-shell-nav {
   align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  border-radius: 999px;
+  background: var(--auth-nav-bg);
+  border: 1px solid var(--auth-border);
+  backdrop-filter: blur(14px);
 }
 
 .auth-shell-nav a {
   text-decoration: none;
   color: var(--text-muted);
   font-weight: 700;
+  padding: 10px 14px;
+  border-radius: 999px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.auth-shell-nav a:hover {
+  background: var(--auth-nav-link-hover);
+}
+
+.auth-theme-button {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--text);
+  box-shadow: inset 0 0 0 1px var(--auth-border);
 }
 
 .auth-shell-grid {
@@ -1293,6 +1349,18 @@ button {
   background: color-mix(in srgb, var(--accent) 14%, transparent);
   color: var(--accent);
   font-weight: 800;
+  flex-shrink: 0;
+}
+
+.auth-social-mark.is-instagram {
+  background: linear-gradient(135deg, var(--instagram-start), var(--instagram-mid), var(--instagram-end));
+  color: #fff;
+  box-shadow: 0 10px 22px rgba(221, 42, 123, 0.24);
+}
+
+.auth-social-icon {
+  width: 16px;
+  height: 16px;
 }
 
 .auth-divider {

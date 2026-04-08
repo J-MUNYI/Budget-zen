@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import logo from "../assets/home/budget-zen-logo.png";
+import ThemeToggleButton from "./ThemeToggleButton";
 
 export default function AuthShell({
   eyebrow,
@@ -28,11 +29,12 @@ export default function AuthShell({
           <img src={logo} alt="Budget Zen logo" className="auth-shell-brand-logo" />
           <div>
             <p className="auth-shell-brand-title">Budget Zen</p>
-            <p className="auth-shell-brand-copy">Your calm money workspace</p>
+            <p className="auth-shell-brand-copy">Be wise with your coins.</p>
           </div>
         </Link>
 
         <nav className="auth-shell-nav">
+          <ThemeToggleButton className="auth-theme-button" compact />
           <Link to="/login">Log in</Link>
           <Link to="/register">Create account</Link>
         </nav>
