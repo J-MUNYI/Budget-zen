@@ -69,6 +69,7 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -83,8 +84,13 @@ export default function Login() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setFieldErrors({});
 
     if (!email || !password) {
+      const nextFieldErrors = {};
+      if (!email) nextFieldErrors.email = "Email is required";
+      if (!password) nextFieldErrors.password = "Password is required";
+      setFieldErrors(nextFieldErrors);
       setError("Please enter both email and password.");
       return;
     }
@@ -92,11 +98,14 @@ export default function Login() {
     setError("");
     setLoading(true);
 
-    const result = await login(email, password);
+    const result = await login(email.trim(), password);
 
     if (result.success) {
       navigate("/dashboard");
     } else {
+      if (result.validationErrors) {
+        setFieldErrors(result.validationErrors);
+      }
       setError(result.error || "Login failed. Please try again.");
     }
 
@@ -112,9 +121,12 @@ export default function Login() {
     }
   };
 
+  const inputClassName = (hasError) =>
+    `auth-form-input${hasError ? " is-error" : ""}`;
+
   return (
     <AuthShell
-      eyebrow="Welcome back"
+      eyebrow="Welcome back!"
       title="Sign in to the same polished workspace you land in after login."
       copy="Sign up if you are new."
       statLabel="Weekly cash flow"
@@ -148,9 +160,15 @@ export default function Login() {
               type="email"
               placeholder="you@example.com"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="auth-form-input"
+              onChange={(e) => {
+                setEmail(e.target.value);
+                if (fieldErrors.email) {
+                  setFieldErrors((prev) => ({ ...prev, email: undefined }));
+                }
+              }}
+              className={inputClassName(Boolean(fieldErrors.email))}
             />
+            {fieldErrors.email ? <p className="auth-field-error">{fieldErrors.email}</p> : null}
           </div>
 
           <div className="auth-form-field">
@@ -160,8 +178,13 @@ export default function Login() {
                 type={showPassword ? "text" : "password"}
                 placeholder="••••••••"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="auth-form-input auth-form-input-plain"
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  if (fieldErrors.password) {
+                    setFieldErrors((prev) => ({ ...prev, password: undefined }));
+                  }
+                }}
+                className={`${inputClassName(Boolean(fieldErrors.password))} auth-form-input-plain`}
               />
               <button
                 type="button"
@@ -171,6 +194,7 @@ export default function Login() {
                 {showPassword ? "Hide" : "Show"}
               </button>
             </div>
+            {fieldErrors.password ? <p className="auth-field-error">{fieldErrors.password}</p> : null}
           </div>
 
           <div className="auth-meta-row">

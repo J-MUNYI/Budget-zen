@@ -42,13 +42,20 @@ export function AuthProvider({ children }) {
           const data = await response.json();
           // Handle validation errors
           if (data.errors && Array.isArray(data.errors)) {
-            return { 
-              success: false, 
-              error: JSON.stringify({ errors: data.errors })
+            const validationErrors = data.errors.reduce((acc, err) => {
+              if (err?.path && err?.msg) {
+                acc[err.path] = err.msg;
+              }
+              return acc;
+            }, {});
+            return {
+              success: false,
+              error: "Please fix the highlighted fields.",
+              validationErrors,
             };
           }
           errorMessage = data.message || errorMessage;
-        } catch (e) {
+        } catch (_err) {
           // If response is not JSON, use status text
           errorMessage = response.statusText || `Server error (${response.status})`;
         }
@@ -66,9 +73,9 @@ export function AuthProvider({ children }) {
     } catch (error) {
       // Handle network errors (server down, CORS, etc.)
       if (error.message.includes("Failed to fetch") || error.message.includes("NetworkError")) {
-        return { 
-          success: false, 
-          error: "Cannot connect to server. Please check if the backend is running." 
+        return {
+          success: false,
+          error: "Cannot connect to server. Please check if the backend is running."
         };
       }
       return { success: false, error: error.message || "Login failed. Please try again." };
