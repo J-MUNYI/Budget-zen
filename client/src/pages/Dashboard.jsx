@@ -94,7 +94,7 @@ export default function Dashboard() {
 
   return (
     <AppShell
-      title={`Hello, ${firstName}`}
+      title={`Hello, ${firstName}!`}
       subtitle="Welcome back! Here's a calmer view of your money flow today."
       aside={aside}
     >
