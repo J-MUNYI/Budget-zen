@@ -126,11 +126,18 @@ export default function Dashboard() {
     [navigate]
   );
 
-  const handleDelete = useCallback(async (id) => {
+  const handleDelete = useCallback(async (expense) => {
+    const label = expense.description || expense.category || "this expense";
+    const confirmed = window.confirm(`Delete "${label}"? This action cannot be undone.`);
+
+    if (!confirmed) {
+      return;
+    }
+
     setActionError(null);
     try {
-      await deleteExpense(id);
-      setExpenses((prev) => prev.filter((exp) => exp._id !== id));
+      await deleteExpense(expense._id);
+      setExpenses((prev) => prev.filter((exp) => exp._id !== expense._id));
     } catch (err) {
       setActionError(err.message || "Could not delete expense.");
     }

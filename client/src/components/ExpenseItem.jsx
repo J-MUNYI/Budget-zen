@@ -48,7 +48,7 @@ export default function ExpenseItem({ expense, onEdit, onDelete }) {
           </button>
           <button
             type="button"
-            onClick={() => onDelete(expense._id)}
+            onClick={() => onDelete(expense)}
             style={{
               fontSize: "0.75rem",
               fontWeight: 700,
