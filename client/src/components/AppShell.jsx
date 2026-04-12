@@ -7,9 +7,8 @@ import { ShellIcon } from "./ui/AppIcons";
 const navItems = [
   { label: "Dashboard", path: "/dashboard", icon: "grid" },
   { label: "Add Expense", path: "/add-expense", icon: "plus" },
-  { label: "Wallet", path: "/dashboard?view=wallet", icon: "wallet", placeholder: true },
-  { label: "Insights", path: "/dashboard?view=insights", icon: "chart", placeholder: true },
-  { label: "Settings", path: "/dashboard?view=settings", icon: "settings", placeholder: true },
+  { label: "Wallet", path: "/wallet", icon: "wallet" },
+  { label: "Insights", path: "/insights", icon: "chart" },
 ];
 
 export default function AppShell({ title, subtitle, children, aside }) {
@@ -36,15 +35,13 @@ export default function AppShell({ title, subtitle, children, aside }) {
 
         <nav className="shell-nav">
           {navItems.map((item) => {
-            const active = item.placeholder
-              ? false
-              : location.pathname === item.path;
+            const active = location.pathname === item.path;
 
             return (
               <Link
                 key={item.label}
-                to={item.placeholder ? location.pathname : item.path}
-                className={`shell-nav-item${active ? " is-active" : ""}${item.placeholder ? " is-muted" : ""}`}
+                to={item.path}
+                className={`shell-nav-item${active ? " is-active" : ""}`}
               >
                 <span className="shell-nav-icon">
                   <ShellIcon name={item.icon} />
@@ -91,7 +88,12 @@ export default function AppShell({ title, subtitle, children, aside }) {
 
         <footer className="shell-footer">
           <span>Welcome back, {firstName}.</span>
-          <span>Budget Zen dashboard experience</span>
+          <div className="shell-footer-right">
+            <span>Budget Zen Est 2025</span>
+            <span className="shell-footer-credit">
+              A Muny1verse creation <span className="shell-footer-heart" aria-hidden="true">🤍</span>
+            </span>
+          </div>
         </footer>
       </div>
     </div>

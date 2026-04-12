@@ -9,6 +9,9 @@ const passport = require('./config/passport');
 // Import routes
 const authRoutes = require('./routes/auth');
 const expenseRoutes = require('./routes/expenses');
+const userRoutes = require('./routes/user');
+const insightsRoutes = require('./routes/insights');
+const mpesaRoutes = require('./routes/mpesa');
 
 const app = express();
 
@@ -69,6 +72,9 @@ app.get('/', (req, res) => {
 // API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/expenses', expenseRoutes);
+app.use('/api/user', userRoutes);
+app.use('/api/insights', insightsRoutes);
+app.use('/api/mpesa', mpesaRoutes);
 
 // 404 handler for undefined routes
 app.use((req, res) => {

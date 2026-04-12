@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useCallback } from "react";
+import { fetchMe } from "../api/client";
 
 const AuthContext = createContext();
 
@@ -55,7 +56,7 @@ export function AuthProvider({ children }) {
             };
           }
           errorMessage = data.message || errorMessage;
-        } catch (_err) {
+        } catch {
           // If response is not JSON, use status text
           errorMessage = response.statusText || `Server error (${response.status})`;
         }
@@ -123,8 +124,21 @@ export function AuthProvider({ children }) {
     setUser(null);
   };
 
+  const refreshUser = useCallback(async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return null;
+    try {
+      const profile = await fetchMe();
+      localStorage.setItem("user", JSON.stringify(profile));
+      setUser(profile);
+      return profile;
+    } catch {
+      return null;
+    }
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );

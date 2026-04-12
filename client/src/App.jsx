@@ -5,6 +5,8 @@ import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import AddExpense from "./pages/AddExpense";
 import AuthCallback from "./pages/AuthCallback";
+import Wallet from "./pages/Wallet";
+import Insights from "./pages/Insights";
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -40,6 +42,30 @@ function App() {
           element={
             <ProtectedRoute>
               <AddExpense />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/add-expense/:expenseId"
+          element={
+            <ProtectedRoute>
+              <AddExpense />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/wallet"
+          element={
+            <ProtectedRoute>
+              <Wallet />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/insights"
+          element={
+            <ProtectedRoute>
+              <Insights />
             </ProtectedRoute>
           }
         />

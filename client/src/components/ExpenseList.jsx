@@ -1,6 +1,6 @@
 import ExpenseItem from "./ExpenseItem";
 
-export default function ExpenseList({ expenses, onEdit, onDelete }) {
+export default function ExpenseList({ expenses, onEdit, onDelete, loading }) {
   return (
     <div className="expense-list-card">
       <div className="expense-list-header">
@@ -9,11 +9,16 @@ export default function ExpenseList({ expenses, onEdit, onDelete }) {
           <h2 className="dashboard-section-title" style={{ fontSize: "1.2rem", marginTop: "6px" }}>Recent Expenses</h2>
         </div>
         <span className="expense-list-pill">
-          {expenses.length} {expenses.length === 1 ? "entry" : "entries"}
+          {loading ? "…" : `${expenses.length} ${expenses.length === 1 ? "entry" : "entries"}`}
         </span>
       </div>
 
-      {expenses.length === 0 ? (
+      {loading ? (
+        <div style={{ textAlign: "center", padding: "3rem 0", color: "var(--text-muted)", fontSize: "0.9rem" }}>
+          <div style={{ fontSize: "2rem", marginBottom: "12px" }}>⏳</div>
+          <p>Loading your entries…</p>
+        </div>
+      ) : expenses.length === 0 ? (
         <div style={{ textAlign: "center", padding: "3rem 0", color: "var(--text-muted)", fontSize: "0.9rem" }}>
           <div style={{ fontSize: "2rem", marginBottom: "12px" }}>💸</div>
           <p>No expenses recorded yet.</p>

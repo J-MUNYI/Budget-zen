@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const categories = ["Food", "Transport", "Shopping", "Bills", "Other"];
 
@@ -11,11 +11,25 @@ const categoryIcons = {
 };
 
 export default function ExpenseForm({ onSubmit, initialData }) {
-  const [amount, setAmount] = useState(initialData?.amount || "");
+  const [amount, setAmount] = useState(initialData?.amount != null ? String(initialData.amount) : "");
   const [category, setCategory] = useState(initialData?.category || "");
   const [description, setDescription] = useState(initialData?.description || "");
   const [date, setDate] = useState(initialData?.date || "");
   const [focused, setFocused] = useState("");
+
+  useEffect(() => {
+    if (!initialData) {
+      setAmount("");
+      setCategory("");
+      setDescription("");
+      setDate("");
+      return;
+    }
+    setAmount(initialData.amount != null ? String(initialData.amount) : "");
+    setCategory(initialData.category || "");
+    setDescription(initialData.description || "");
+    setDate(initialData.date || "");
+  }, [initialData]);
 
   const handleSubmit = (e) => {
     e.preventDefault();

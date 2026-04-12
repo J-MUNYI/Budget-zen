@@ -12,6 +12,10 @@ const userSchema = new mongoose.Schema({
   },
   googleId: { type: String, sparse: true },
   instagramId: { type: String, sparse: true },
+  monthlyIncome: { type: Number, default: null },
+  mpesaBalance: { type: Number, default: 0 },
+  mpesaPhoneLast4: { type: String, default: '' },
+  insightsFocus: { type: String, default: '' },
   createdAt: { type: Date, default: Date.now }
 });
 
