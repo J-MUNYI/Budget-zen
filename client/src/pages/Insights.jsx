@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import AppShell from "../components/AppShell";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/useAuth";
 import { generateInsights, patchMe } from "../api/client";
 
 export default function Insights() {

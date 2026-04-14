@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/useAuth";
 import logo from "../assets/home/budget-zen-logo.png";
 import ThemeToggleButton from "./ThemeToggleButton";
 import { ShellIcon } from "./ui/AppIcons";

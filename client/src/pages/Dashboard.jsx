@@ -5,7 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { LineChart, Line, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import AppShell from "../components/AppShell";
 import { ContainerScroll } from "../components/ui/ContainerScrollAnimation";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/useAuth";
 import { fetchExpenses, deleteExpense } from "../api/client";
 import { buildMonthlyBuckets, currentMonthSpent } from "../utils/monthlyTrend";
 

@@ -1,4 +1,4 @@
-import { useTheme } from "../context/ThemeContext";
+import { useTheme } from "../context/useTheme";
 import { ShellIcon } from "./ui/AppIcons";
 
 export default function ThemeToggleButton({ className = "", compact = false }) {

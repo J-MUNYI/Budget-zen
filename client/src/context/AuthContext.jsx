@@ -1,7 +1,6 @@
-import { createContext, useContext, useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { fetchMe } from "../api/client";
-
-const AuthContext = createContext();
+import { AuthContext } from "./authContext";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
@@ -142,8 +141,4 @@ export function AuthProvider({ children }) {
       {children}
     </AuthContext.Provider>
   );
-}
-
-export function useAuth() {
-  return useContext(AuthContext);
 }
