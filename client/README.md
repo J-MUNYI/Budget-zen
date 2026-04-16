@@ -19,18 +19,25 @@ A mobile-first web app to track your daily, weekly, and monthly expenses.
 
 ## Getting Started
 
+Use Node.js 18+ for local development.
+
 1. **Install dependencies:**
    ```bash
    cd client
    npm install
    ```
 
-2. **Run the app locally:**
+2. **Create your local environment file:**
+   ```bash
+   cp .env.example .env
+   ```
+
+3. **Run the app locally:**
    ```bash
    npm run dev
    ```
 
-3. **Build for production:**
+4. **Build for production:**
    ```bash
    npm run build
    ```
@@ -38,6 +45,14 @@ A mobile-first web app to track your daily, weekly, and monthly expenses.
 ## Environment Variables
 
 Create a `.env` file in the `client` directory:
+
+```bash
+VITE_API_URL=
+VITE_API_PROXY_TARGET=http://localhost:5000
+```
+
+- Leave `VITE_API_URL` empty during local development to use the Vite proxy.
+- Set `VITE_API_URL` to your deployed backend URL when the frontend and backend are hosted separately.
 
 
 ## Deployment

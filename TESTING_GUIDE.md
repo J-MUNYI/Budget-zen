@@ -122,7 +122,8 @@ The frontend should start on `http://localhost:5173` (or another port if 5173 is
 **Solution:**
 - Make sure backend server is running on port 5000
 - Check if CORS is properly configured (should be enabled in server.js)
-- Verify API_URL in AuthContext.jsx matches your backend URL
+- For local development, set `VITE_API_URL=` and `VITE_API_PROXY_TARGET=http://localhost:5000` in `client/.env`
+- If your backend runs on a different host or port, update `VITE_API_PROXY_TARGET` or `VITE_API_URL` to match it
 
 ### Issue: "User already exists" on Registration
 **Solution:**
@@ -156,10 +157,11 @@ The frontend should start on `http://localhost:5173` (or another port if 5173 is
 If you need to change the API URL, create a `.env` file in the `client` directory:
 
 ```
-VITE_API_URL=http://localhost:5000
+VITE_API_URL=
+VITE_API_PROXY_TARGET=http://localhost:5000
 ```
 
-Or for production:
+For production:
 ```
 VITE_API_URL=https://your-backend-url.com
 ```
@@ -172,4 +174,3 @@ After successful testing:
 3. Add token refresh mechanism
 4. Enhance error handling and user feedback
 5. Add loading states and better UX
-
