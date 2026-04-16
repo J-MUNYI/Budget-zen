@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
+import { API_URL } from "../api/client";
 import {
   Area,
   AreaChart,
@@ -217,7 +218,6 @@ export default function Register() {
   };
 
   const handleSocialLogin = (provider) => {
-    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
     if (provider === "Google") {
       window.location.href = `${API_URL}/api/auth/google`;
     } else if (provider === "Instagram") {

@@ -1,8 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
-import { fetchMe } from "../api/client";
+import { API_URL, fetchMe } from "../api/client";
 import { AuthContext } from "./authContext";
-
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);

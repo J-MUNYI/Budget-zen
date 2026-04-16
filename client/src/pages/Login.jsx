@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
+import { API_URL } from "../api/client";
 import {
   CartesianGrid,
   Line,
@@ -113,7 +114,6 @@ export default function Login() {
   };
 
   const handleSocialLogin = (provider) => {
-    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
     if (provider === "Google") {
       window.location.href = `${API_URL}/api/auth/google`;
     } else if (provider === "Instagram") {
