@@ -72,7 +72,7 @@ export default function Register() {
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  const { register } = useAuth();
+  const { register, oauthProviders } = useAuth();
   const navigate = useNavigate();
 
   const getPasswordStrength = (pwd) => {
@@ -193,22 +193,11 @@ export default function Register() {
     if (result.success) {
       navigate("/dashboard");
     } else {
-      if (result.error) {
-        try {
-          const errorData = JSON.parse(result.error);
-          if (errorData.errors && Array.isArray(errorData.errors)) {
-            const backendErrors = {};
-            errorData.errors.forEach((err) => {
-              backendErrors[err.param] = err.msg;
-            });
-            setFieldErrors(backendErrors);
-            setError("Please fix the errors below");
-          } else {
-            setError(result.error);
-          }
-        } catch {
-          setError(result.error);
-        }
+      if (result.validationErrors) {
+        setFieldErrors(result.validationErrors);
+        setError(result.error || "Please fix the errors below");
+      } else if (result.error) {
+        setError(result.error);
       } else {
         setError("Registration failed. Please try again.");
       }
@@ -241,13 +230,25 @@ export default function Register() {
       error={error}
       socialButtons={
         <>
-          <button type="button" onClick={() => handleSocialLogin("Google")} className="auth-social-button">
+          <button
+            type="button"
+            onClick={() => handleSocialLogin("Google")}
+            className="auth-social-button"
+            disabled={!oauthProviders.google}
+            title={!oauthProviders.google ? "Google sign-in is not configured" : undefined}
+          >
             <span className="auth-social-mark is-google">
               <GoogleIcon className="auth-social-icon" />
             </span>
             <span>Continue with Google</span>
           </button>
-          <button type="button" onClick={() => handleSocialLogin("Instagram")} className="auth-social-button">
+          <button
+            type="button"
+            onClick={() => handleSocialLogin("Instagram")}
+            className="auth-social-button"
+            disabled={!oauthProviders.instagram}
+            title={!oauthProviders.instagram ? "Instagram sign-in is not configured" : undefined}
+          >
             <span className="auth-social-mark is-instagram">
               <InstagramIcon className="auth-social-icon" />
             </span>

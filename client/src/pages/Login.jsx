@@ -72,7 +72,7 @@ export default function Login() {
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const { login, oauthProviders } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -80,6 +80,10 @@ export default function Login() {
     const oauthError = searchParams.get("error");
     if (oauthError === "oauth_failed") {
       setError("OAuth authentication failed. Please try again or use email/password.");
+    } else if (oauthError === "google_disabled") {
+      setError("Google sign-in is not configured yet on the server.");
+    } else if (oauthError === "instagram_disabled") {
+      setError("Instagram sign-in is not configured yet on the server.");
     }
   }, [searchParams]);
 
@@ -137,13 +141,25 @@ export default function Login() {
       error={error}
       socialButtons={
         <>
-          <button type="button" onClick={() => handleSocialLogin("Google")} className="auth-social-button">
+          <button
+            type="button"
+            onClick={() => handleSocialLogin("Google")}
+            className="auth-social-button"
+            disabled={!oauthProviders.google}
+            title={!oauthProviders.google ? "Google sign-in is not configured" : undefined}
+          >
             <span className="auth-social-mark is-google">
               <GoogleIcon className="auth-social-icon" />
             </span>
             <span>Continue with Google</span>
           </button>
-          <button type="button" onClick={() => handleSocialLogin("Instagram")} className="auth-social-button">
+          <button
+            type="button"
+            onClick={() => handleSocialLogin("Instagram")}
+            className="auth-social-button"
+            disabled={!oauthProviders.instagram}
+            title={!oauthProviders.instagram ? "Instagram sign-in is not configured" : undefined}
+          >
             <span className="auth-social-mark is-instagram">
               <InstagramIcon className="auth-social-icon" />
             </span>

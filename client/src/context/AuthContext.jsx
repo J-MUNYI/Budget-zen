@@ -5,6 +5,7 @@ import { AuthContext } from "./authContext";
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [oauthProviders, setOauthProviders] = useState({ google: false, instagram: false });
 
   // Check for stored token on mount
   useEffect(() => {
@@ -22,6 +23,28 @@ export function AuthProvider({ children }) {
     }
     setLoading(false);
   }, []);
+
+  const refreshOauthProviders = useCallback(async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/auth/providers`);
+      if (!response.ok) {
+        throw new Error("Failed to load auth providers");
+      }
+      const data = await response.json();
+      setOauthProviders({
+        google: Boolean(data.google),
+        instagram: Boolean(data.instagram),
+      });
+      return data;
+    } catch {
+      setOauthProviders({ google: false, instagram: false });
+      return null;
+    }
+  }, []);
+
+  useEffect(() => {
+    refreshOauthProviders();
+  }, [refreshOauthProviders]);
 
   const login = async (email, password) => {
     try {
@@ -95,9 +118,15 @@ export function AuthProvider({ children }) {
       if (!response.ok) {
         // Handle validation errors from express-validator
         if (data.errors && Array.isArray(data.errors)) {
-          return { 
-            success: false, 
-            error: JSON.stringify({ errors: data.errors })
+          return {
+            success: false,
+            validationErrors: data.errors.reduce((acc, err) => {
+              if (err?.path && err?.msg) {
+                acc[err.path] = err.msg;
+              }
+              return acc;
+            }, {}),
+            error: "Please fix the highlighted fields.",
           };
         }
         // Handle other error messages
@@ -135,7 +164,18 @@ export function AuthProvider({ children }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, refreshUser }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        login,
+        register,
+        logout,
+        refreshUser,
+        oauthProviders,
+        refreshOauthProviders,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
