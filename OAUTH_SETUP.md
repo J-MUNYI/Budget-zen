@@ -1,11 +1,11 @@
-# OAuth Setup Guide for Google and Facebook
+# OAuth Setup Guide for Google and Instagram
 
-This guide will help you set up Google and Facebook OAuth authentication for Budget Zen.
+This guide will help you set up Google and Instagram OAuth authentication for Budget Zen.
 
 ## Prerequisites
 
 - A Google account
-- A Facebook account
+- An Instagram/Facebook developer account
 - Access to your backend server environment variables
 
 ## Google OAuth Setup
@@ -41,39 +41,40 @@ GOOGLE_CLIENT_SECRET=your-google-client-secret-here
 GOOGLE_CALLBACK_URL=/api/auth/google/callback
 ```
 
-## Facebook OAuth Setup
+## Instagram OAuth Setup
 
-### Step 1: Create Facebook App
+### Step 1: Create Meta App
 
-1. Go to [Facebook Developers](https://developers.facebook.com/)
+1. Go to [Meta for Developers](https://developers.facebook.com/)
 2. Click **My Apps** > **Create App**
 3. Choose **Consumer** as the app type
 4. Fill in:
    - **App Display Name**: Budget Zen (or your preferred name)
    - **App Contact Email**: Your email
-5. Click **Create App**
+5. Add Instagram as a product for the app if prompted
+6. Click **Create App**
 
-### Step 2: Configure Facebook Login
+### Step 2: Configure Instagram Login
 
-1. In your app dashboard, find **Facebook Login** and click **Set Up**
+1. In your app dashboard, find the Instagram product and click **Set Up**
 2. Choose **Web** as the platform
 3. Add your site URL:
    - `http://localhost:5173` (for local development)
    - `https://your-frontend-domain.com` (for production)
 4. Go to **Settings** > **Basic** and note your **App ID** and **App Secret**
 5. Add **Valid OAuth Redirect URIs**:
-   - `http://localhost:5000/api/auth/facebook/callback` (for local development)
-   - `https://your-backend-domain.com/api/auth/facebook/callback` (for production)
+   - `http://localhost:5000/api/auth/instagram/callback` (for local development)
+   - `https://your-backend-domain.com/api/auth/instagram/callback` (for production)
 6. Click **Save Changes**
 
-### Step 3: Add Facebook Credentials to Backend
+### Step 3: Add Instagram Credentials to Backend
 
 Add these to your `.env` file in the `server` directory:
 
 ```env
-FACEBOOK_APP_ID=your-facebook-app-id-here
-FACEBOOK_APP_SECRET=your-facebook-app-secret-here
-FACEBOOK_CALLBACK_URL=/api/auth/facebook/callback
+INSTAGRAM_CLIENT_ID=your-instagram-client-id-here
+INSTAGRAM_CLIENT_SECRET=your-instagram-client-secret-here
+INSTAGRAM_CALLBACK_URL=/api/auth/instagram/callback
 ```
 
 ## Additional Environment Variables
@@ -93,7 +94,7 @@ CLIENT_URL=http://localhost:5173
 # OAuth Callbacks (full URLs if needed)
 # For production, you might need:
 # GOOGLE_CALLBACK_URL=https://your-backend-domain.com/api/auth/google/callback
-# FACEBOOK_CALLBACK_URL=https://your-backend-domain.com/api/auth/facebook/callback
+# INSTAGRAM_CALLBACK_URL=https://your-backend-domain.com/api/auth/instagram/callback
 ```
 
 ## Testing OAuth
@@ -101,7 +102,7 @@ CLIENT_URL=http://localhost:5173
 1. Make sure your backend server is running (`npm run dev` in the `server` directory)
 2. Make sure your frontend is running (`npm run dev` in the `client` directory)
 3. Go to the login or register page
-4. Click **Continue with Google** or **Continue with Facebook**
+4. Click **Continue with Google** or **Continue with Instagram**
 5. You should be redirected to the OAuth provider's login page
 6. After authentication, you'll be redirected back to your app
 
@@ -121,7 +122,7 @@ CLIENT_URL=http://localhost:5173
 
 ### "Invalid Credentials" Error
 
-- Verify your Client ID/Secret and App ID/Secret are correct
+- Verify your Google and Instagram client credentials are correct
 - Make sure environment variables are loaded (restart server after adding them)
 - Check that OAuth consent screen is properly configured (Google)
 
