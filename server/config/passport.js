@@ -3,6 +3,10 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const InstagramStrategy = require('passport-instagram').Strategy;
 const User = require('../models/User');
 
+function normalizeEmail(email = '') {
+  return String(email).trim().toLowerCase();
+}
+
 // Serialize user for session
 passport.serializeUser((user, done) => {
   done(null, user._id);
@@ -32,7 +36,12 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
       async (accessToken, refreshToken, profile, done) => {
         try {
           // Check if user already exists
-          let user = await User.findOne({ email: profile.emails[0].value });
+          const primaryEmail = normalizeEmail(profile.emails?.[0]?.value);
+          if (!primaryEmail) {
+            return done(new Error('Google account did not return an email address.'), null);
+          }
+
+          let user = await User.findOne({ email: primaryEmail });
 
           if (user) {
             // User exists, update Google ID if not set
@@ -46,7 +55,7 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
           // Create new user
           user = new User({
             name: profile.displayName,
-            email: profile.emails[0].value,
+            email: primaryEmail,
             googleId: profile.id,
             password: null, // OAuth users don't have passwords
           });
@@ -79,7 +88,7 @@ if (process.env.INSTAGRAM_CLIENT_ID && process.env.INSTAGRAM_CLIENT_SECRET) {
       async (accessToken, refreshToken, profile, done) => {
         try {
           // Instagram Basic-style flows may not provide an email, so we generate a stable placeholder.
-          const email = `${profile.id}@instagram.local`;
+          const email = normalizeEmail(`${profile.id}@instagram.local`);
           const name = profile.displayName || profile.username || `Instagram User ${profile.id}`;
 
           let user = await User.findOne({
