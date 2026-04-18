@@ -69,12 +69,21 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
-  const [error, setError] = useState("");
+  const [errorRaw, setErrorRaw] = useState("");
   const [fieldErrors, setFieldErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const { login, oauthProviders } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+
+  const setError = (msg) => {
+    setErrorRaw(msg);
+    if (msg) {
+      setTimeout(() => setErrorRaw(""), 5000);
+    }
+  };
+
+  const error = errorRaw;
 
   useEffect(() => {
     const oauthError = searchParams.get("error");
@@ -84,6 +93,12 @@ export default function Login() {
       setError("Google sign-in is not configured yet on the server.");
     } else if (oauthError === "instagram_disabled") {
       setError("Instagram sign-in is not configured yet on the server.");
+    }
+
+    const savedEmail = localStorage.getItem("budgetzen_remembered_email");
+    if (savedEmail) {
+      setEmail(savedEmail);
+      setRememberMe(true);
     }
   }, [searchParams]);
 
@@ -106,6 +121,11 @@ export default function Login() {
     const result = await login(email.trim(), password);
 
     if (result.success) {
+      if (rememberMe) {
+        localStorage.setItem("budgetzen_remembered_email", email.trim());
+      } else {
+        localStorage.removeItem("budgetzen_remembered_email");
+      }
       navigate("/dashboard");
     } else {
       if (result.validationErrors) {
@@ -228,7 +248,20 @@ export default function Login() {
           </div>
 
           <button type="submit" disabled={loading} className="auth-submit-button">
-            {loading ? "Logging in..." : "Enter dashboard"}
+            {loading ? (
+              <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>
+                <svg
+                  width="16" height="16" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"
+                  style={{ animation: "spin 0.75s linear infinite" }}
+                >
+                  <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+                </svg>
+                Logging in...
+              </span>
+            ) : (
+              "Enter dashboard"
+            )}
           </button>
         </form>
       }

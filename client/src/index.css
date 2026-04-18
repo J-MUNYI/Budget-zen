@@ -1660,5 +1660,9 @@ button {
 
   .auth-insight-grid {
     grid-template-columns: 1fr;
+    @keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
   }
 }
