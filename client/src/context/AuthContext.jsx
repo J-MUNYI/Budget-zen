@@ -7,11 +7,10 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [oauthProviders, setOauthProviders] = useState({ google: false, instagram: false });
 
-  // Check for stored token on mount
   useEffect(() => {
     const token = localStorage.getItem("token");
     const storedUser = localStorage.getItem("user");
-    
+
     if (token && storedUser) {
       try {
         setUser(JSON.parse(storedUser));
@@ -27,9 +26,7 @@ export function AuthProvider({ children }) {
   const refreshOauthProviders = useCallback(async () => {
     try {
       const response = await fetch(`${API_URL}/api/auth/providers`);
-      if (!response.ok) {
-        throw new Error("Failed to load auth providers");
-      }
+      if (!response.ok) throw new Error("Failed to load auth providers");
       const data = await response.json();
       setOauthProviders({
         google: Boolean(data.google),
@@ -46,27 +43,27 @@ export function AuthProvider({ children }) {
     refreshOauthProviders();
   }, [refreshOauthProviders]);
 
+  const loginWithToken = useCallback((token, userData) => {
+    localStorage.setItem("token", token);
+    localStorage.setItem("user", JSON.stringify(userData));
+    setUser(userData);
+  }, []);
+
   const login = async (email, password) => {
     try {
       const response = await fetch(`${API_URL}/api/auth/login`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
 
-      // Handle network errors
       if (!response.ok) {
         let errorMessage = "Login failed";
         try {
           const data = await response.json();
-          // Handle validation errors
           if (data.errors && Array.isArray(data.errors)) {
             const validationErrors = data.errors.reduce((acc, err) => {
-              if (err?.path && err?.msg) {
-                acc[err.path] = err.msg;
-              }
+              if (err?.path && err?.msg) acc[err.path] = err.msg;
               return acc;
             }, {});
             return {
@@ -77,26 +74,21 @@ export function AuthProvider({ children }) {
           }
           errorMessage = data.message || errorMessage;
         } catch {
-          // If response is not JSON, use status text
           errorMessage = response.statusText || `Server error (${response.status})`;
         }
         return { success: false, error: errorMessage };
       }
 
       const data = await response.json();
-
-      // Store token and user
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
       setUser(data.user);
-
       return { success: true, user: data.user };
     } catch (error) {
-      // Handle network errors (server down, CORS, etc.)
       if (error.message.includes("Failed to fetch") || error.message.includes("NetworkError")) {
         return {
           success: false,
-          error: "Cannot connect to server. Please check if the backend is running."
+          error: "Cannot connect to server. Please check if the backend is running.",
         };
       }
       return { success: false, error: error.message || "Login failed. Please try again." };
@@ -107,37 +99,29 @@ export function AuthProvider({ children }) {
     try {
       const response = await fetch(`${API_URL}/api/auth/register`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, password }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        // Handle validation errors from express-validator
         if (data.errors && Array.isArray(data.errors)) {
           return {
             success: false,
             validationErrors: data.errors.reduce((acc, err) => {
-              if (err?.path && err?.msg) {
-                acc[err.path] = err.msg;
-              }
+              if (err?.path && err?.msg) acc[err.path] = err.msg;
               return acc;
             }, {}),
             error: "Please fix the highlighted fields.",
           };
         }
-        // Handle other error messages
         throw new Error(data.message || "Registration failed");
       }
 
-      // Store token and user
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
       setUser(data.user);
-
       return { success: true, user: data.user };
     } catch (error) {
       return { success: false, error: error.message };
@@ -172,6 +156,7 @@ export function AuthProvider({ children }) {
         register,
         logout,
         refreshUser,
+        loginWithToken,
         oauthProviders,
         refreshOauthProviders,
       }}

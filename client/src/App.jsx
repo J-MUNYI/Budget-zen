@@ -7,6 +7,10 @@ import AddExpense from "./pages/AddExpense";
 import AuthCallback from "./pages/AuthCallback";
 import Wallet from "./pages/Wallet";
 import Insights from "./pages/Insights";
+import OAuthCallback from "./pages/OAuthCallback";
+
+// Inside your <Routes>:
+<Route path="/auth/callback" element={<OAuthCallback />} />
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();

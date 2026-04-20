@@ -6,63 +6,55 @@ const morgan = require('morgan');
 const session = require('express-session');
 const passport = require('./config/passport');
 
-// Import routes
-const authRoutes = require('./routes/auth');
-const expenseRoutes = require('./routes/expenses');
-const userRoutes = require('./routes/user');
-const insightsRoutes = require('./routes/insights');
-const mpesaRoutes = require('./routes/mpesa');
-
 const app = express();
 
-// Middleware
+// Allowed origins
 const defaultAllowedOrigins = [
   'http://localhost:5173',
   'http://127.0.0.1:5173',
   'http://localhost:5174',
   'http://127.0.0.1:5174',
 ];
-
 const envAllowedOrigins = (process.env.CLIENT_URL || '')
   .split(',')
   .map((origin) => origin.trim())
   .filter(Boolean);
-
 const allowedOrigins = [...new Set([...defaultAllowedOrigins, ...envAllowedOrigins])];
 
 app.use(cors({
   origin(origin, callback) {
-    // Allow non-browser requests like curl/postman that may not send Origin.
-    if (!origin) {
-      return callback(null, true);
-    }
-
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
-
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) return callback(null, true);
     return callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
 }));
+
 app.use(express.json());
 app.use(morgan('dev'));
 
-// Session configuration for OAuth
+// Session — must be before passport
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'your-secret-key-change-in-production',
+  secret: process.env.SESSION_SECRET || 'budgetzen_secret',
   resave: false,
   saveUninitialized: false,
   cookie: {
     secure: process.env.NODE_ENV === 'production',
     httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
-  }
+    maxAge: 24 * 60 * 60 * 1000,
+  },
 }));
 
-// Initialize Passport
+// Passport
 app.use(passport.initialize());
 app.use(passport.session());
+
+// Import routes
+const authRoutes = require('./routes/auth');
+const expenseRoutes = require('./routes/expenses');
+const userRoutes = require('./routes/user');
+const insightsRoutes = require('./routes/insights');
+const mpesaRoutes = require('./routes/mpesa');
 
 // Root route
 app.get('/', (req, res) => {
@@ -76,7 +68,7 @@ app.use('/api/user', userRoutes);
 app.use('/api/insights', insightsRoutes);
 app.use('/api/mpesa', mpesaRoutes);
 
-// 404 handler for undefined routes
+// 404 handler
 app.use((req, res) => {
   res.status(404).json({ message: 'Route not found' });
 });
