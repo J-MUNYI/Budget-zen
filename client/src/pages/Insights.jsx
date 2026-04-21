@@ -296,7 +296,7 @@ export default function Insights() {
           </button>
         </div>
         <p style={{ fontSize: "0.72rem", color: "var(--text-muted)", textAlign: "center", marginTop: "6px" }}>
-          Powered by Claude AI · Your data never leaves your server
+          Your data never leaves your server · AI-powered insights
         </p>
       </div>
     </AppShell>

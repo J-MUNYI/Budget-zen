@@ -235,7 +235,7 @@ export default function AppShell({ title, subtitle, children, aside }) {
 
           {/* Hover text animation */}
           <div style={{ height: "120px", marginBottom: "-40px", padding: "0 28px" }}>
-            <TextHoverEffect text="Muny1verse" />
+            <TextHoverEffect text="BZ" />
           </div>
         </footer>
       </div>

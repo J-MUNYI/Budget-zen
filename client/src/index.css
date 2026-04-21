@@ -1,4 +1,5 @@
-@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap");
+@import url("https://api.fontshare.com/v2/css?f[]=clash-display@500,600,700&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -81,7 +82,7 @@ html {
 
 body {
   margin: 0;
-  font-family: "Manrope", sans-serif;
+  font-family: "Plus Jakarta Sans", sans-serif;
   background:
     radial-gradient(circle at top left, rgba(127, 95, 255, 0.1), transparent 25%),
     radial-gradient(circle at top right, rgba(31, 156, 229, 0.1), transparent 24%),
@@ -96,7 +97,7 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: "Sora", sans-serif;
+  font-family: "Clash Display", sans-serif;
 }
 
 * {
@@ -1223,8 +1224,8 @@ button {
 .auth-hero-title,
 .auth-form-title {
   margin: 14px 0 0;
-  font-family: "Sora", sans-serif;
-  font-weight: 800;
+  font-family: "Clash Display", sans-serif;
+  font-weight: 700;
   color: var(--text);
 }
 
@@ -1558,9 +1559,8 @@ button {
 }
 
 @keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 @media (max-width: 1200px) {
@@ -1660,9 +1660,5 @@ button {
 
   .auth-insight-grid {
     grid-template-columns: 1fr;
-    @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
   }
 }
