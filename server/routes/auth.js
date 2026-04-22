@@ -37,9 +37,11 @@ router.get('/google', (req, res, next) => {
   if (!googleEnabled()) {
     return res.redirect(`${frontendUrl()}/login?error=google_disabled`);
   }
-  return passport.authenticate('google', { scope: ['profile', 'email'] })(req, res, next);
+  passport.authenticate('google', { 
+    scope: ['profile', 'email'],
+    prompt: 'select_account'
+  })(req, res, next);
 });
-
 router.get('/google/callback',
   (req, res, next) => {
     passport.authenticate('google', {
