@@ -43,12 +43,10 @@ router.get('/google', (req, res, next) => {
   })(req, res, next);
 });
 router.get('/google/callback',
-  (req, res, next) => {
-    passport.authenticate('google', {
-      session: false,
-      failureRedirect: `${frontendUrl()}/login?error=oauth_failed`,
-    })(req, res, next);
-  },
+  passport.authenticate('google', {
+    session: false,
+    failureRedirect: `${frontendUrl()}/login?error=oauth_failed`,
+  }),
   async (req, res) => {
     try {
       const doc = await User.findById(req.user._id);
@@ -71,12 +69,10 @@ router.get('/instagram', (req, res, next) => {
 });
 
 router.get('/instagram/callback',
-  (req, res, next) => {
-    passport.authenticate('instagram', {
-      session: false,
-      failureRedirect: `${frontendUrl()}/login?error=oauth_failed`,
-    })(req, res, next);
-  },
+  passport.authenticate('instagram', {
+    session: false,
+    failureRedirect: `${frontendUrl()}/login?error=oauth_failed`,
+  }),
   async (req, res) => {
     try {
       const doc = await User.findById(req.user._id);

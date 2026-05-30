@@ -9,9 +9,6 @@ import Wallet from "./pages/Wallet";
 import Insights from "./pages/Insights";
 import OAuthCallback from "./pages/OAuthCallback";
 
-// Inside your <Routes>:
-<Route path="/auth/callback" element={<OAuthCallback />} />
-
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
   if (loading) return (
@@ -32,7 +29,7 @@ function App() {
         <Route path="/" element={<Navigate to="/login" />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/auth/callback" element={<AuthCallback />} />
+        <Route path="/auth/callback" element={<OAuthCallback />} />
         <Route
           path="/dashboard"
           element={
