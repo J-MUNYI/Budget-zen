@@ -6,6 +6,35 @@ function normalizeEmail(email = '') {
   return String(email).trim().toLowerCase();
 }
 
+function stripTrailingSlash(value = '') {
+  return String(value).trim().replace(/\/+$/, '');
+}
+
+function ensureLeadingSlash(value = '') {
+  const path = String(value).trim();
+  return path.startsWith('/') ? path : `/${path}`;
+}
+
+function buildCallbackURL(provider) {
+  const envKey = `${provider.toUpperCase()}_CALLBACK_URL`;
+  const configuredCallback = String(process.env[envKey] || '').trim();
+  const backendUrl = stripTrailingSlash(process.env.BACKEND_URL || 'http://localhost:5000');
+  const defaultPath = `/api/auth/${provider}/callback`;
+
+  if (!configuredCallback) {
+    return `${backendUrl}${defaultPath}`;
+  }
+
+  try {
+    const url = new URL(configuredCallback);
+    const missingSlashPattern = /(\.(?:com|net|org|io|dev|app|co|me))(api\/.*)$/i;
+    const normalizedHref = url.href.replace(missingSlashPattern, '$1/$2');
+    return new URL(normalizedHref).toString();
+  } catch {
+    return `${backendUrl}${ensureLeadingSlash(configuredCallback)}`;
+  }
+}
+
 passport.serializeUser((user, done) => {
   done(null, user._id);
 });
@@ -21,9 +50,7 @@ passport.deserializeUser(async (id, done) => {
 
 function initializeStrategies() {
   if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
-    const callbackURL =
-      process.env.GOOGLE_CALLBACK_URL ||
-      `${process.env.BACKEND_URL || 'http://localhost:5000'}/api/auth/google/callback`;
+    const callbackURL = buildCallbackURL('google');
 
     console.log('Registering Google strategy with callback:', callbackURL);
 
@@ -32,7 +59,7 @@ function initializeStrategies() {
         {
           clientID: process.env.GOOGLE_CLIENT_ID,
           clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-          callbackURL:  process.env.GOOGLE_CALLBACK_URL,
+          callbackURL,
         },
         async (accessToken, refreshToken, profile, done) => {
           try {

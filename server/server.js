@@ -10,6 +10,10 @@ const session = require('express-session');
 
 const app = express();
 
+if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1);
+}
+
 // Allowed origins
 const defaultAllowedOrigins = [
   'http://localhost:5173',

@@ -38,7 +38,8 @@ Add these to your `.env` file in the `server` directory:
 ```env
 GOOGLE_CLIENT_ID=your-google-client-id-here
 GOOGLE_CLIENT_SECRET=your-google-client-secret-here
-GOOGLE_CALLBACK_URL=/api/auth/google/callback
+BACKEND_URL=http://localhost:5000
+GOOGLE_CALLBACK_URL=http://localhost:5000/api/auth/google/callback
 ```
 
 ## Facebook OAuth Setup
@@ -90,8 +91,8 @@ SESSION_SECRET=your-session-secret-key
 # Frontend URL (for OAuth callbacks)
 CLIENT_URL=http://localhost:5173
 
-# OAuth Callbacks (full URLs if needed)
-# For production, you might need:
+# OAuth callbacks must match Google/Facebook exactly.
+# For production, use your backend domain:
 # GOOGLE_CALLBACK_URL=https://your-backend-domain.com/api/auth/google/callback
 # FACEBOOK_CALLBACK_URL=https://your-backend-domain.com/api/auth/facebook/callback
 ```
@@ -118,6 +119,8 @@ CLIENT_URL=http://localhost:5173
 - Ensure redirect URIs match exactly in both OAuth provider settings and your backend
 - Check that `CLIENT_URL` in your backend `.env` matches your frontend URL
 - For production, use HTTPS URLs
+- If Google shows `redirect_uri=https://your-domain.comapi/auth/google/callback`, your callback path is missing a `/`.
+  Set `BACKEND_URL=https://your-domain.com` and `GOOGLE_CALLBACK_URL=https://your-domain.com/api/auth/google/callback`.
 
 ### "Invalid Credentials" Error
 
@@ -137,8 +140,35 @@ When deploying to production:
 1. Update all callback URLs to use HTTPS
 2. Update `CLIENT_URL` to your production frontend URL
 3. Ensure your OAuth provider settings include production URLs
-4. Use secure session cookies (already configured in `server.js`)
-5. Keep your secrets secure - never commit `.env` files
+4. On Vercel, include `client/vercel.json` so React Router paths like `/auth/callback` are served by `index.html`
+5. Set frontend `VITE_API_URL` to your backend URL, for example `https://budget-zen-backe.onrender.com`
+6. Use secure session cookies (already configured in `server.js`)
+7. Keep your secrets secure - never commit `.env` files
+
+For local OAuth testing, use a matching local pair:
+
+```env
+# client/.env
+VITE_API_URL=
+VITE_API_PROXY_TARGET=http://localhost:5000
+
+# server/.env
+CLIENT_URL=http://localhost:5173
+BACKEND_URL=http://localhost:5000
+GOOGLE_CALLBACK_URL=http://localhost:5000/api/auth/google/callback
+```
+
+For deployed OAuth testing, use a matching deployed pair:
+
+```env
+# Vercel frontend env
+VITE_API_URL=https://budget-zen-backe.onrender.com
+
+# Render backend env
+CLIENT_URL=https://budget-zen-zeta.vercel.app
+BACKEND_URL=https://budget-zen-backe.onrender.com
+GOOGLE_CALLBACK_URL=https://budget-zen-backe.onrender.com/api/auth/google/callback
+```
 
 ## Security Notes
 
