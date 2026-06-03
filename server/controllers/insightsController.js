@@ -22,11 +22,11 @@ function summarizeExpenses(expenses) {
 
 exports.generateInsights = async (req, res) => {
   try {
-    const apiKey = process.env.ANTHROPIC_API_KEY;
+    const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
       return res.status(503).json({
         message:
-          'AI insights are not configured. Set ANTHROPIC_API_KEY in the server .env file, restart the API, and ensure the key has no extra quotes.',
+          'AI insights are not configured. Set GEMINI_API_KEY environment variable to enable this feature.',
       });
     }
 
@@ -58,30 +58,40 @@ Use plain language, no markdown headings with # — use simple labels and line b
       expenseSummary: summary,
     });
 
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 1024,
-        system,
-        messages: [
-          { role: 'user', content: userContent },
+        system_instruction: {
+          parts: {
+            text: system,
+          },
+        },
+        contents: [
+          {
+            role: 'user',
+            parts: [
+              {
+                text: userContent,
+              },
+            ],
+          },
         ],
+        generationConfig: {
+          maxOutputTokens: 1024,
+          temperature: 1,
+        },
       }),
     });
-
-    const rawText = await response.text();
+   const rawText = await response.text();
     let data = {};
     try {
       data = rawText ? JSON.parse(rawText) : {};
     } catch {
       return res.status(502).json({
-        message: 'Claude returned non-JSON. Check server network and ANTHROPIC_API_KEY.',
+        message: 'Gemini returned non-JSON. Check server network and GEMINI_API_KEY.',
         detail: rawText.slice(0, 280),
       });
     }
@@ -91,19 +101,20 @@ Use plain language, no markdown headings with # — use simple labels and line b
         data.error?.message ||
         data.message ||
         (typeof data === 'string' ? data : null) ||
-        `Claude HTTP ${response.status}`;
+        `Gemini HTTP ${response.status}`;
       return res.status(502).json({ message: msg, detail: data.error || null });
     }
 
-    const text = data.content?.[0]?.text?.trim() || '';
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
     if (!text) {
       return res.status(502).json({
-        message: 'No insight text returned from Claude. Please try again.',
+        message: 'No insight text returned from Gemini. Please try again.',
       });
     }
 
     res.json({ insight: text });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error('Insights generation error:', err);
+    return res.status(500).json({ message: 'Server error while generating insights' });
   }
 };
