@@ -1193,7 +1193,7 @@ button {
   margin: 24px auto 0;
   display: grid;
   grid-template-columns: minmax(0, 1.05fr) minmax(420px, 0.95fr);
-  align-items: start;
+  align-items: stretch;
 }
 
 .auth-hero-card,
