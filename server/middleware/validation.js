@@ -9,3 +9,16 @@ module.exports = (req, res, next) => {
   }
   next();
 };
+
+// Express-validator middleware for income validation
+module.exports.validateIncome = [
+  require('express-validator').check('monthlyIncome')
+    .optional()
+    .isNumeric().withMessage('Monthly income must be a number')
+    .custom((value) => {
+      if (value !== null && value !== '' && parseFloat(value) < 0) {
+        throw new Error('Monthly income cannot be negative');
+      }
+      return true;
+    }),
+];
