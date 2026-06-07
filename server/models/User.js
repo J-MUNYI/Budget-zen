@@ -12,7 +12,16 @@ const userSchema = new mongoose.Schema({
   },
   googleId: { type: String, sparse: true },
   instagramId: { type: String, sparse: true },
-  monthlyIncome: { type: Number, default: null },
+  monthlyIncome: { 
+    type: Number, 
+    default: null,
+    validate: {
+      validator: function(v) {
+        return v === null || v >= 0;
+      },
+      message: 'Monthly income must be a positive number or empty'
+    }
+  },
   mpesaBalance: { type: Number, default: 0 },
   mpesaPhoneLast4: { type: String, default: '' },
   insightsFocus: { type: String, default: '' },
