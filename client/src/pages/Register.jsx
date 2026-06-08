@@ -98,8 +98,8 @@ export default function Register() {
 
   const strengthStyle = getPasswordStrength(password);
 
-  const validateField = (fieldName, value) => {
-    const errors = { ...fieldErrors };
+  const validateField = (fieldName, value, currentErrors = {}) => {
+    const errors = { ...currentErrors };
 
     switch (fieldName) {
       case "name":
@@ -116,7 +116,7 @@ export default function Register() {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!value) {
           errors.email = "Email is required";
-        } else if (!emailRegex.test(value)) {
+        } else if (!emailRegex.test(value.trim())) {
           errors.email = "Please enter a valid email address";
         } else {
           delete errors.email;
@@ -154,35 +154,22 @@ export default function Register() {
         break;
     }
 
-    setFieldErrors(errors);
+    return errors;
   };
 
   const handleRegister = async (e) => {
     e.preventDefault();
     setError("");
 
-    validateField("name", name);
-    validateField("email", email);
-    validateField("password", password);
-    validateField("confirmPassword", confirmPassword);
+    let nextFieldErrors = validateField("name", name);
+    nextFieldErrors = validateField("email", email, nextFieldErrors);
+    nextFieldErrors = validateField("password", password, nextFieldErrors);
+    nextFieldErrors = validateField("confirmPassword", confirmPassword, nextFieldErrors);
 
-    const hasErrors =
-      Object.keys(fieldErrors).length > 0 ||
-      !name ||
-      !email ||
-      !password ||
-      !confirmPassword ||
-      password !== confirmPassword ||
-      password.length < 6;
+    setFieldErrors(nextFieldErrors);
 
-    if (hasErrors) {
-      if (!name) validateField("name", "");
-      if (!email) validateField("email", "");
-      if (!password) validateField("password", "");
-      if (!confirmPassword) validateField("confirmPassword", "");
-      if (password && confirmPassword && password !== confirmPassword) {
-        validateField("confirmPassword", confirmPassword);
-      }
+    if (Object.keys(nextFieldErrors).length) {
+      setError("Please fix the highlighted fields before continuing.");
       return;
     }
 
@@ -257,6 +244,7 @@ export default function Register() {
         </>
       }
       dividerLabel="or sign up with email"
+      loading={loading}
       form={
         <form className="auth-form" onSubmit={handleRegister}>
           <div className="auth-form-field">
@@ -267,9 +255,9 @@ export default function Register() {
               value={name}
               onChange={(e) => {
                 setName(e.target.value);
-                validateField("name", e.target.value);
+                setFieldErrors((prev) => validateField("name", e.target.value, prev));
               }}
-              onBlur={(e) => validateField("name", e.target.value)}
+              onBlur={(e) => setFieldErrors((prev) => validateField("name", e.target.value, prev))}
               className={inputClassName(fieldErrors.name)}
             />
             {fieldErrors.name ? <p className="auth-field-error">{fieldErrors.name}</p> : null}
@@ -283,9 +271,9 @@ export default function Register() {
               value={email}
               onChange={(e) => {
                 setEmail(e.target.value);
-                validateField("email", e.target.value);
+                setFieldErrors((prev) => validateField("email", e.target.value, prev));
               }}
-              onBlur={(e) => validateField("email", e.target.value)}
+              onBlur={(e) => setFieldErrors((prev) => validateField("email", e.target.value, prev))}
               className={inputClassName(fieldErrors.email)}
             />
             {fieldErrors.email ? <p className="auth-field-error">{fieldErrors.email}</p> : null}
@@ -300,9 +288,9 @@ export default function Register() {
                 value={password}
                 onChange={(e) => {
                   setPassword(e.target.value);
-                  validateField("password", e.target.value);
+                  setFieldErrors((prev) => validateField("password", e.target.value, prev));
                 }}
-                onBlur={(e) => validateField("password", e.target.value)}
+                onBlur={(e) => setFieldErrors((prev) => validateField("password", e.target.value, prev))}
                 className="auth-form-input auth-form-input-plain"
               />
               <button
@@ -339,9 +327,9 @@ export default function Register() {
                 value={confirmPassword}
                 onChange={(e) => {
                   setConfirmPassword(e.target.value);
-                  validateField("confirmPassword", e.target.value);
+                  setFieldErrors((prev) => validateField("confirmPassword", e.target.value, prev));
                 }}
-                onBlur={(e) => validateField("confirmPassword", e.target.value)}
+                onBlur={(e) => setFieldErrors((prev) => validateField("confirmPassword", e.target.value, prev))}
                 className="auth-form-input auth-form-input-plain"
               />
               <button

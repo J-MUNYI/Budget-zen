@@ -1,0 +1,89 @@
+/* AuthShell.css - Skeleton loading styles */
+.skeleton-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(200, 200, 200, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.skeleton-content {
+  width: 80%;
+  max-width: 400px;
+  background: linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%);
+  background-size: 200% 100%;
+  animation: pulse 1.5s ease-in-out infinite;
+  border-radius: 8px;
+  padding: 2rem;
+  text-align: center;
+  color: #777;
+}
+
+@keyframes pulse {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+
+/* Skeleton placeholders */
+.skeleton-orbs .skeleton-orb {
+  width: 30px;
+  height: 30px;
+  background: #e0e0e0;
+  border-radius: 50%;
+  margin: 5px;
+  animation: pulse 1.5s infinite;
+}
+
+.skeleton-header,
+.skeleton-header .skeleton-link,
+.skeleton-header .skeleton-nav-link {
+  width: 120px;
+  height: 30px;
+  background: #e0e0e0;
+}
+.skeleton-header .skeleton-title,
+.skeleton-header .skeleton-copy,
+.skeleton-header .skeleton-button {
+  width: 100%;
+  height: 20px;
+  background: #e0e0e0;
+}
+
+.skeleton-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+.skeleton-card,
+.skeleton-title,
+.skeleton-copy,
+.skeleton-label,
+.skeleton-value,
+.skeleton-pill,
+.skeleton-bottom,
+.skeleton-frame,
+.skeleton-error {
+  background: #e0e0e0;
+  margin: 4px 0;
+}
+.skeleton-card { padding: 1rem; border-radius: 8px; }
+.skeleton-title,
+.skeleton-copy,
+.skeleton-label,
+.skeleton-value,
+.skeleton-pill,
+.skeleton-bottom { height: 20px; }
+.skeleton-frame,
+.skeleton-bottom { height: 100px; }
+.skeleton-error { color: #ff5555; }
+.skeleton-social-row .skeleton-nav-link {
+  width: 100%;
+  height: 30px;
+  background: #e0e0e0;
+  margin-top: 10px;
+}

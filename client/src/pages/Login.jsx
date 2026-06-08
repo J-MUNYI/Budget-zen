@@ -102,23 +102,62 @@ export default function Login() {
     }
   }, [searchParams]);
 
+  const validateField = (fieldName, value) => {
+    setFieldErrors((prev) => {
+      const next = { ...prev };
+
+      if (fieldName === "email") {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!value) {
+          next.email = "Email is required";
+        } else if (!emailRegex.test(value.trim())) {
+          next.email = "Please enter a valid email address";
+        } else {
+          delete next.email;
+        }
+      }
+
+      if (fieldName === "password") {
+        if (!value) {
+          next.password = "Password is required";
+        } else if (value.length < 6) {
+          next.password = "Password must be at least 6 characters";
+        } else {
+          delete next.password;
+        }
+      }
+
+      return next;
+    });
+  };
+
   const handleLogin = async (e) => {
     e.preventDefault();
-    setFieldErrors({});
+    const nextFieldErrors = {};
+    const emailValue = email.trim();
+    const passwordValue = password;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    if (!email || !password) {
-      const nextFieldErrors = {};
-      if (!email) nextFieldErrors.email = "Email is required";
-      if (!password) nextFieldErrors.password = "Password is required";
+    if (!emailValue) {
+      nextFieldErrors.email = "Email is required";
+    } else if (!emailRegex.test(emailValue)) {
+      nextFieldErrors.email = "Please enter a valid email address";
+    }
+
+    if (!passwordValue) {
+      nextFieldErrors.password = "Password is required";
+    }
+
+    if (Object.keys(nextFieldErrors).length) {
       setFieldErrors(nextFieldErrors);
-      setError("Please enter both email and password.");
+      setError("Please fix the highlighted fields before continuing.");
       return;
     }
 
     setError("");
     setLoading(true);
 
-    const result = await login(email.trim(), password);
+    const result = await login(emailValue, passwordValue);
 
     if (result.success) {
       if (rememberMe) {
@@ -188,6 +227,7 @@ export default function Login() {
         </>
       }
       dividerLabel="or continue with email"
+      loading={loading}
       form={
         <form className="auth-form" onSubmit={handleLogin}>
           <div className="auth-form-field">
@@ -198,10 +238,9 @@ export default function Login() {
               value={email}
               onChange={(e) => {
                 setEmail(e.target.value);
-                if (fieldErrors.email) {
-                  setFieldErrors((prev) => ({ ...prev, email: undefined }));
-                }
+                validateField("email", e.target.value);
               }}
+              onBlur={(e) => validateField("email", e.target.value)}
               className={inputClassName(Boolean(fieldErrors.email))}
             />
             {fieldErrors.email ? <p className="auth-field-error">{fieldErrors.email}</p> : null}
@@ -216,10 +255,9 @@ export default function Login() {
                 value={password}
                 onChange={(e) => {
                   setPassword(e.target.value);
-                  if (fieldErrors.password) {
-                    setFieldErrors((prev) => ({ ...prev, password: undefined }));
-                  }
+                  validateField("password", e.target.value);
                 }}
+                onBlur={(e) => validateField("password", e.target.value)}
                 className={`${inputClassName(Boolean(fieldErrors.password))} auth-form-input-plain`}
               />
               <button

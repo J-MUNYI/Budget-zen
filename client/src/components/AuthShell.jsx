@@ -1,9 +1,11 @@
 import { Link } from "react-router-dom";
 import logo from "../assets/home/budget-zen-logo.png";
 import ThemeToggleButton from "./ThemeToggleButton";
+import "./AuthShell.css";
 
 export default function AuthShell({
   eyebrow,
+  loading,
   title,
   copy,
   statLabel,
@@ -76,6 +78,11 @@ export default function AuthShell({
           {footer}
         </section>
       </main>
+      {loading ? (
+        <div className="skeleton-overlay">
+          <div className="skeleton-content">Working on your request…</div>
+        </div>
+      ) : null}
     </div>
   );
 }

@@ -222,22 +222,23 @@ export default function Insights() {
             ))}
           </AnimatePresence>
 
-          {loading && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              style={{ display: "flex", gap: "6px", padding: "8px 16px" }}
-            >
-              {[0, 1, 2].map((i) => (
-                <motion.div
-                  key={i}
-                  animate={{ y: [0, -6, 0] }}
-                  transition={{ duration: 0.6, repeat: Infinity, delay: i * 0.15 }}
-                  style={{ width: "8px", height: "8px", borderRadius: "50%", background: "var(--accent)" }}
+          {loading ? (
+            <div style={{ display: "flex", flexDirection: "column", gap: "12px", padding: "12px 16px" }}>
+              {["short", "long", "medium"].map((size, i) => (
+                <div
+                  key={size}
+                  style={{
+                    width: size === "short" ? "40%" : size === "medium" ? "60%" : "80%",
+                    height: "18px",
+                    borderRadius: "999px",
+                    background: "rgba(255,255,255,0.08)",
+                    animation: "pulse 1.3s ease-in-out infinite",
+                    alignSelf: i === 1 ? "flex-end" : "flex-start",
+                  }}
                 />
               ))}
-            </motion.div>
-          )}
+            </div>
+          ) : null}
           <div ref={messagesEndRef} />
         </div>
 

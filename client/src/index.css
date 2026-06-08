@@ -1521,6 +1521,26 @@ button {
   cursor: not-allowed;
 }
 
+@keyframes pulse {
+  0% { opacity: 0.5; }
+  50% { opacity: 1; }
+  100% { opacity: 0.5; }
+}
+
+.insights-skeleton-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 16px;
+}
+
+.insights-skeleton-bubble {
+  border-radius: 999px;
+  background: rgba(255,255,255,0.08);
+  min-height: 18px;
+  animation: pulse 1.3s ease-in-out infinite;
+}
+
 .auth-footer-copy {
   margin: 22px 0 0;
   text-align: center;
