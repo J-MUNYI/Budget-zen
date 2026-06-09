@@ -87,3 +87,24 @@
   background: #e0e0e0;
   margin-top: 10px;
 }
+
+.auth-insight-preview {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.auth-insight-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.auth-insight-text {
+  font-size: 14px;
+  color: var(--text);
+  line-height: 1.5;
+}

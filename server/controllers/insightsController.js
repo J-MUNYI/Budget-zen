@@ -86,15 +86,15 @@ Use plain language, no markdown headings with # — use simple labels and line b
       }),
     });
    const rawText = await response.text();
-    let data = {};
-    try {
-      data = rawText ? JSON.parse(rawText) : {};
-    } catch {
-      return res.status(502).json({
-        message: 'Gemini returned non-JSON. Check server network and GEMINI_API_KEY.',
-        detail: rawText.slice(0, 280),
-      });
-    }
+     let data = {};
+     try {
+       data = rawText ? JSON.parse(rawText) : {};
+     } catch {
+       return res.status(502).json({
+         message: 'Gemini returned non-JSON. Check server network and GEMINI_API_KEY.',
+         detail: rawText.slice(0, 280),
+       });
+     }
 
     if (!response.ok) {
       const msg =
@@ -116,5 +116,57 @@ Use plain language, no markdown headings with # — use simple labels and line b
   } catch (err) {
     console.error('Insights generation error:', err);
     return res.status(500).json({ message: 'Server error while generating insights' });
+  }
+};
+
+exports.getSampleInsight = async (req, res) => {
+  try {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      return res.status(503).json({
+        message:
+          'AI insights are not configured. Set GEMINI_API_KEY environment variable to enable this feature.',
+      });
+    }
+
+    const sampleExpenses = [
+      { category: 'Food', amount: 2500, date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000) },
+      { category: 'Transport', amount: 800, date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000) },
+      { category: 'Entertainment', amount: 1200, date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000) },
+    ];
+    const summary = summarizeExpenses(sampleExpenses);
+
+    const system = `You are a concise, practical personal finance coach for users in Kenya (amounts in KES).
+Give: (1) a short executive summary, (2) 3–5 bullet observations, (3) 3 concrete actionable tips.
+Use plain language, no markdown headings with #. Keep total under 200 words.`;
+
+    const userContent = JSON.stringify({
+      profile: { monthlyIncome: 50000, mpesaBalance: 15000 },
+      expenseSummary: summary,
+    });
+
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        system_instruction: { parts: { text: system } },
+        contents: [{ role: 'user', parts: [{ text: userContent }] }],
+        generationConfig: { maxOutputTokens: 250, temperature: 0.7 },
+      }),
+    });
+
+    const rawText = await response.text();
+    let data = {};
+    try {
+      data = rawText ? JSON.parse(rawText) : {};
+    } catch {
+      return res.status(502).json({ message: 'Failed to parse insight', detail: rawText.slice(0, 200) });
+    }
+
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || 'Start tracking your expenses to get personalized insights.';
+    res.json({ insight: text });
+  } catch (err) {
+    console.error('Sample insight error:', err);
+    res.status(500).json({ message: 'Could not generate sample insight' });
   }
 };

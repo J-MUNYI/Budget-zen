@@ -11,6 +11,7 @@ export default function AuthShell({
   statLabel,
   statValue,
   chart,
+  insight,
   formTitle,
   formCopy,
   error,
@@ -58,6 +59,13 @@ export default function AuthShell({
             </div>
             <div className="auth-chart-frame">{chart}</div>
           </div>
+
+          {insight ? (
+            <div className="auth-insight-preview">
+              <p className="auth-insight-label">AI Insight</p>
+              <p className="auth-insight-text">{insight}</p>
+            </div>
+          ) : null}
 
           {bottomCard ? <div className="auth-bottom-card">{bottomCard}</div> : null}
         </section>

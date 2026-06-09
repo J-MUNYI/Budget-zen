@@ -72,6 +72,7 @@ export default function Login() {
   const [errorRaw, setErrorRaw] = useState("");
   const [fieldErrors, setFieldErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const [insight, setInsight] = useState("");
   const { login, oauthProviders } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -101,6 +102,13 @@ export default function Login() {
       setRememberMe(true);
     }
   }, [searchParams]);
+
+  useEffect(() => {
+    fetch(`${API_URL}/api/insights/sample`)
+      .then((r) => r.json())
+      .then((d) => setInsight(d.insight || ""))
+      .catch(() => setInsight(""));
+  }, []);
 
   const validateField = (fieldName, value) => {
     setFieldErrors((prev) => {
@@ -195,6 +203,7 @@ export default function Login() {
       statLabel="Weekly cash flow"
       statValue="+18.4%"
       chart={<AuthChart />}
+      insight={insight}
       formTitle="Log in"
       formCopy="Continue with a provider or use your email to get back to your budgeting overview."
       error={error}
