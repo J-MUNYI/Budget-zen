@@ -70,7 +70,7 @@ export default function Navbar() {
               letterSpacing: "0.05em",
             }}
           >
-            Budget Zen
+            Shilingi Zen
           </span>
         </Link>
 

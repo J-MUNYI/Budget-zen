@@ -128,7 +128,7 @@ export default function AppShell({ title, subtitle, children, aside }) {
           <img src={logo} alt="Budget Zen logo" className="shell-brand-logo" />
           <div>
             <p className="shell-brand-title">{user?.name || "Budget Zen User"}</p>
-            <p className="shell-brand-subtitle">Budget Zen</p>
+            <p className="shell-brand-subtitle">Shilingi Zen</p>
           </div>
         </div>
         <nav className="shell-nav">
@@ -235,7 +235,7 @@ export default function AppShell({ title, subtitle, children, aside }) {
 
           {/* Hover text animation */}
           <div style={{ height: "120px", marginBottom: "-40px", padding: "0 28px" }}>
-            <TextHoverEffect text="BZ" />
+            <TextHoverEffect text="SZ" />
           </div>
         </footer>
       </div>

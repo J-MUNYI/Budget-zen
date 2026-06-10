@@ -1,0 +1,144 @@
+# OAuth Setup Guide for Google Login
+
+This guide will help you set up Google OAuth authentication for ShilingiZen.
+
+## Prerequisites
+
+* A Google account
+* Access to your backend server environment variables
+
+## Google OAuth Setup
+
+### Step 1: Create Google OAuth Credentials
+
+1. Go to the Google Cloud Console
+2. Create a new project or select an existing one
+3. Navigate to **APIs & Services** > **Credentials**
+4. Click **Create Credentials** > **OAuth client ID**
+5. If prompted, configure the OAuth consent screen:
+
+   * Choose **External** (unless you have a Google Workspace)
+   * Fill in the required information (App name, User support email, etc.)
+   * Add your email to test users if needed
+   * Click **Save and Continue** through the steps
+6. For **Application type**, select **Web application**
+7. Add **Authorized JavaScript origins**:
+
+   * `http://localhost:5000` (for local development)
+   * `https://your-backend-domain.com` (for production)
+8. Add **Authorized redirect URIs**:
+
+   * `http://localhost:5000/api/auth/google/callback` (for local development)
+   * `https://your-backend-domain.com/api/auth/google/callback` (for production)
+9. Click **Create**
+10. Copy the **Client ID** and **Client Secret**
+
+### Step 2: Add Google Credentials to Backend
+
+Add these to your `.env` file in the `server` directory:
+
+```env
+GOOGLE_CLIENT_ID=your-google-client-id-here
+GOOGLE_CLIENT_SECRET=your-google-client-secret-here
+BACKEND_URL=http://localhost:5000
+GOOGLE_CALLBACK_URL=http://localhost:5000/api/auth/google/callback
+```
+
+## Additional Environment Variables
+
+Make sure your `.env` file also includes:
+
+```env
+# Backend Configuration
+PORT=5000
+MONGO_URI=your-mongodb-connection-string
+JWT_SECRET=your-jwt-secret-key
+SESSION_SECRET=your-session-secret-key
+
+# Frontend URL (for OAuth callbacks)
+CLIENT_URL=http://localhost:5173
+
+# OAuth callback must match Google exactly.
+# For production, use your backend domain:
+# GOOGLE_CALLBACK_URL=https://your-backend-domain.com/api/auth/google/callback
+```
+
+## Testing Google OAuth
+
+1. Make sure your backend server is running (`npm run dev` in the `server` directory)
+2. Make sure your frontend is running (`npm run dev` in the `client` directory)
+3. Go to the login or register page
+4. Click **Continue with Google**
+5. You should be redirected to Google's login page
+6. After authentication, you'll be redirected back to ShilingiZen
+
+## Troubleshooting
+
+### "Route not found" Error
+
+* Make sure your backend server is running
+* Check that `VITE_API_URL` in your frontend `.env` matches your backend URL
+* Verify CORS is configured correctly in `server.js`
+
+### OAuth Redirect Issues
+
+* Ensure redirect URIs match exactly in both Google settings and your backend
+* Check that `CLIENT_URL` in your backend `.env` matches your frontend URL
+* For production, use HTTPS URLs
+* If Google shows `redirect_uri=https://your-domain.comapi/auth/google/callback`, your callback path is missing a `/`.
+  Set `BACKEND_URL=https://your-domain.com` and `GOOGLE_CALLBACK_URL=https://your-domain.com/api/auth/google/callback`.
+
+### "Invalid Credentials" Error
+
+* Verify your Google Client ID and Client Secret are correct
+* Make sure environment variables are loaded (restart server after adding them)
+* Check that the OAuth consent screen is properly configured
+
+### CORS Errors
+
+* Ensure `CLIENT_URL` in backend `.env` includes your frontend URL
+* Check that CORS middleware allows credentials
+
+## Production Deployment
+
+When deploying to production:
+
+1. Update all callback URLs to use HTTPS
+2. Update `CLIENT_URL` to your production frontend URL
+3. Ensure Google OAuth settings include production URLs
+4. On Vercel, include `client/vercel.json` so React Router paths like `/auth/callback` are served by `index.html`
+5. Set frontend `VITE_API_URL` to your backend URL
+6. Use secure session cookies (already configured in `server.js`)
+7. Keep your secrets secure - never commit `.env` files
+
+### Local OAuth Testing
+
+```env
+# client/.env
+VITE_API_URL=
+VITE_API_PROXY_TARGET=http://localhost:5000
+
+# server/.env
+CLIENT_URL=http://localhost:5173
+BACKEND_URL=http://localhost:5000
+GOOGLE_CALLBACK_URL=http://localhost:5000/api/auth/google/callback
+```
+
+### Deployed OAuth Testing
+
+```env
+# Vercel frontend env
+VITE_API_URL=https://your-backend-domain.com
+
+# Backend env
+CLIENT_URL=https://your-frontend-domain.com
+BACKEND_URL=https://your-backend-domain.com
+GOOGLE_CALLBACK_URL=https://your-backend-domain.com/api/auth/google/callback
+```
+
+## Security Notes
+
+* Never commit `.env` files to version control
+* Use strong, random values for `JWT_SECRET` and `SESSION_SECRET`
+* Regularly rotate your Google OAuth credentials
+* Monitor OAuth usage in your Google Cloud Console
