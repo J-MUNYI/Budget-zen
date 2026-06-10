@@ -31,7 +31,7 @@ export default function AuthShell({
         <Link to="/login" className="auth-shell-brand">
           <img src={logo} alt="Budget Zen logo" className="auth-shell-brand-logo" />
           <div>
-            <p className="auth-shell-brand-title">Manoti</p>
+            <p className="auth-shell-brand-title">ShilingiZen</p>
             <p className="auth-shell-brand-copy">Be wise with your coins.</p>
           </div>
         </Link>
