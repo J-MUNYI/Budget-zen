@@ -5,7 +5,6 @@ import "./AuthShell.css";
 
 export default function AuthShell({
   eyebrow,
-  loading,
   title,
   copy,
   statLabel,
@@ -86,11 +85,6 @@ export default function AuthShell({
           {footer}
         </section>
       </main>
-      {loading ? (
-        <div className="skeleton-overlay">
-          <div className="skeleton-content">Working on your request…</div>
-        </div>
-      ) : null}
     </div>
   );
 }

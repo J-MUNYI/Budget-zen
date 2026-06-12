@@ -89,23 +89,17 @@
 }
 
 .auth-insight-preview {
-  transition: all 0.2s ease-in-out;
-}
-.auth-insight-preview:hover {
-  transform: scale(1.02);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-  transition: all 0.2s ease-in-out;
-  &:hover {
-    transform: scale(1.02);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  }}
-
   margin-top: 1rem;
   padding: 1rem;
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 12px;
+  transition: all 0.2s ease-in-out;
+}
+
+.auth-insight-preview:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .auth-insight-label {
