@@ -93,12 +93,12 @@ export default function Wallet() {
           </h2>
           <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", lineHeight: 1.5, marginBottom: "1rem" }}>
             On the server, set <code style={{ fontSize: "0.82em" }}>MPESA_CONSUMER_KEY</code>,{" "}
-            <code style={{ fontSize: "0.82em" }}>MPESA_CONSUMER_SECRET</code>,{" "}
-            <code style={{ fontSize: "0.82em" }}>MPESA_SHORTCODE</code>,{" "}
-            <code style={{ fontSize: "0.82em" }}>MPESA_INITIATOR_NAME</code>,{" "}
-            <code style={{ fontSize: "0.82em" }}>MPESA_SECURITY_CREDENTIAL</code> (from the Daraja tools), and{" "}
-            <code style={{ fontSize: "0.82em" }}>MPESA_PUBLIC_BASE_URL</code> as your HTTPS API root (ngrok in dev).
-            Use <code style={{ fontSize: "0.82em" }}>MPESA_ENV=production</code> only when going live.
+            <code style={{ fontSize: "0.80em" }}>MPESA_CONSUMER_SECRET</code>,{" "}
+            <code style={{ fontSize: "0.80em" }}>MPESA_SHORTCODE</code>,{" "}
+            <code style={{ fontSize: "0.80em" }}>MPESA_INITIATOR_NAME</code>,{" "}
+            <code style={{ fontSize: "0.80em" }}>MPESA_SECURITY_CREDENTIAL</code> (from the Daraja tools), and{" "}
+            <code style={{ fontSize: "0.80em" }}>MPESA_PUBLIC_BASE_URL</code> as your HTTPS API root (ngrok in dev).
+            Use <code style={{ fontSize: "0.80em" }}>MPESA_ENV=production</code> only when going live.
           </p>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
             <button
