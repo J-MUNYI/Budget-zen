@@ -16,10 +16,10 @@ import { GoogleIcon, InstagramIcon } from "../components/ui/AppIcons";
 
 const sampleData = [
   { name: "Mon", value: 3200 },
-  { name: "Tue", value: 4700 },
+  { name: "Tue", value: 4500 },
   { name: "Wed", value: 4100 },
   { name: "Thu", value: 5980 },
-  { name: "Fri", value: 5400 },
+  { name: "Fri", value: 5300 },
   { name: "Sat", value: 6900 },
   { name: "Sun", value: 6300 },
 ];
