@@ -1,4 +1,15 @@
 require('dotenv').config();
+
+const requiredSecrets = ['JWT_SECRET', 'SESSION_SECRET'];
+const missingSecrets = requiredSecrets.filter((name) => !process.env[name]);
+if (missingSecrets.length) {
+  console.error(
+    `Missing required environment variable(s): ${missingSecrets.join(', ')}. ` +
+      'Set them to strong, random values before starting the server.'
+  );
+  process.exit(1);
+}
+
 const { passport, initializeStrategies } = require('./config/passport');
 initializeStrategies();
 const express = require('express');
@@ -41,7 +52,7 @@ app.use(morgan('dev'));
 
 // Session — must be before passport
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'budgetzen_secret',
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   cookie: {
