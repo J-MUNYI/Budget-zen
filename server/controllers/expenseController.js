@@ -26,12 +26,19 @@ exports.addExpense = async (req, res) => {
   }
 };
 
+const EXPENSE_UPDATABLE_FIELDS = ['amount', 'category', 'description', 'date'];
+
 exports.updateExpense = async (req, res) => {
   try {
+    const updates = {};
+    for (const field of EXPENSE_UPDATABLE_FIELDS) {
+      if (req.body[field] !== undefined) updates[field] = req.body[field];
+    }
+
     const expense = await Expense.findOneAndUpdate(
       { _id: req.params.id, userId: req.user.id },
-      req.body,
-      { new: true }
+      { $set: updates },
+      { new: true, runValidators: true }
     );
     if (!expense) return res.status(404).json({ message: 'Expense not found' });
     res.json(expense);
