@@ -2,6 +2,14 @@ import { useState, useEffect, useCallback } from "react";
 import { API_URL, fetchMe } from "../api/client";
 import { AuthContext } from "./authContext";
 
+// Maps express-validator style error arrays into a { field: message } object.
+function mapValidationErrors(errors) {
+  return errors.reduce((acc, err) => {
+    if (err?.path && err?.msg) acc[err.path] = err.msg;
+    return acc;
+  }, {});
+}
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -62,14 +70,10 @@ export function AuthProvider({ children }) {
         try {
           const data = await response.json();
           if (data.errors && Array.isArray(data.errors)) {
-            const validationErrors = data.errors.reduce((acc, err) => {
-              if (err?.path && err?.msg) acc[err.path] = err.msg;
-              return acc;
-            }, {});
             return {
               success: false,
               error: "Please fix the highlighted fields.",
-              validationErrors,
+              validationErrors: mapValidationErrors(data.errors),
             };
           }
           errorMessage = data.message || errorMessage;
@@ -80,9 +84,7 @@ export function AuthProvider({ children }) {
       }
 
       const data = await response.json();
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("user", JSON.stringify(data.user));
-      setUser(data.user);
+      loginWithToken(data.token, data.user);
       return { success: true, user: data.user };
     } catch (error) {
       if (error.message.includes("Failed to fetch") || error.message.includes("NetworkError")) {
@@ -109,19 +111,14 @@ export function AuthProvider({ children }) {
         if (data.errors && Array.isArray(data.errors)) {
           return {
             success: false,
-            validationErrors: data.errors.reduce((acc, err) => {
-              if (err?.path && err?.msg) acc[err.path] = err.msg;
-              return acc;
-            }, {}),
+            validationErrors: mapValidationErrors(data.errors),
             error: "Please fix the highlighted fields.",
           };
         }
         throw new Error(data.message || "Registration failed");
       }
 
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("user", JSON.stringify(data.user));
-      setUser(data.user);
+      loginWithToken(data.token, data.user);
       return { success: true, user: data.user };
     } catch (error) {
       return { success: false, error: error.message };

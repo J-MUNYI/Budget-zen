@@ -12,7 +12,10 @@ import {
   YAxis,
 } from "recharts";
 import AuthShell from "../components/AuthShell";
-import { GoogleIcon, InstagramIcon } from "../components/ui/AppIcons";
+import SocialAuthButtons from "../components/SocialAuthButtons";
+import { formatKES } from "../utils/format";
+import { isValidEmail } from "../utils/validators";
+import { inputClassName } from "../utils/authForm";
 
 const sampleData = [
   { name: "Mon", value: 3200 },
@@ -48,7 +51,7 @@ function AuthChart() {
             borderRadius: "18px",
             color: "var(--text)",
           }}
-          formatter={(value) => [`KES ${Number(value).toLocaleString()}`, "Income"]}
+          formatter={(value) => [formatKES(value), "Income"]}
           labelStyle={{ color: "var(--text-muted)" }}
         />
         <Line
@@ -115,10 +118,9 @@ export default function Login() {
       const next = { ...prev };
 
       if (fieldName === "email") {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!value) {
           next.email = "Email is required";
-        } else if (!emailRegex.test(value.trim())) {
+        } else if (!isValidEmail(value)) {
           next.email = "Please enter a valid email address";
         } else {
           delete next.email;
@@ -144,11 +146,10 @@ export default function Login() {
     const nextFieldErrors = {};
     const emailValue = email.trim();
     const passwordValue = password;
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!emailValue) {
       nextFieldErrors.email = "Email is required";
-    } else if (!emailRegex.test(emailValue)) {
+    } else if (!isValidEmail(emailValue)) {
       nextFieldErrors.email = "Please enter a valid email address";
     }
 
@@ -184,17 +185,6 @@ export default function Login() {
     setLoading(false);
   };
 
-  const handleSocialLogin = (provider) => {
-    if (provider === "Google") {
-      window.location.href = `${API_URL}/api/auth/google`;
-    } else if (provider === "Instagram") {
-      window.location.href = `${API_URL}/api/auth/instagram`;
-    }
-  };
-
-  const inputClassName = (hasError) =>
-    `auth-form-input${hasError ? " is-error" : ""}`;
-
   return (
     <AuthShell
       eyebrow="Welcome back!"
@@ -207,34 +197,7 @@ export default function Login() {
       formTitle="Log in"
       formCopy="Continue with a provider or use your email to get back to your budgeting overview."
       error={error}
-      socialButtons={
-        <>
-          <button
-            type="button"
-            onClick={() => handleSocialLogin("Google")}
-            className="auth-social-button"
-            disabled={!oauthProviders.google}
-            title={!oauthProviders.google ? "Google sign-in is not configured" : undefined}
-          >
-            <span className="auth-social-mark is-google">
-              <GoogleIcon className="auth-social-icon" />
-            </span>
-            <span>Continue with Google</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => handleSocialLogin("Instagram")}
-            className="auth-social-button"
-            disabled={!oauthProviders.instagram}
-            title={!oauthProviders.instagram ? "Instagram sign-in is not configured" : undefined}
-          >
-            <span className="auth-social-mark is-instagram">
-              <InstagramIcon className="auth-social-icon" />
-            </span>
-            <span>Continue with Instagram</span>
-          </button>
-        </>
-      }
+      socialButtons={<SocialAuthButtons oauthProviders={oauthProviders} />}
       dividerLabel="or continue with email"
       loading={loading}
       form={

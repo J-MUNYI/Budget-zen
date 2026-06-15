@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
-import { API_URL } from "../api/client";
 import {
   Area,
   AreaChart,
@@ -12,7 +11,10 @@ import {
   YAxis,
 } from "recharts";
 import AuthShell from "../components/AuthShell";
-import { GoogleIcon, InstagramIcon } from "../components/ui/AppIcons";
+import SocialAuthButtons from "../components/SocialAuthButtons";
+import { formatKES } from "../utils/format";
+import { isValidEmail } from "../utils/validators";
+import { inputClassName } from "../utils/authForm";
 
 const sampleData = [
   { name: "Mon", value: 1200 },
@@ -53,7 +55,7 @@ function AuthAreaChartPreview() {
             borderRadius: "18px",
             color: "var(--text)",
           }}
-          formatter={(value) => [`KES ${Number(value).toLocaleString()}`, "Projected progress"]}
+          formatter={(value) => [formatKES(value), "Projected progress"]}
           labelStyle={{ color: "var(--text-muted)" }}
         />
         <Area type="monotone" dataKey="value" stroke="var(--accent)" strokeWidth={3.5} fill="url(#authAreaFill)" />
@@ -113,10 +115,9 @@ export default function Register() {
         break;
 
       case "email": {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!value) {
           errors.email = "Email is required";
-        } else if (!emailRegex.test(value.trim())) {
+        } else if (!isValidEmail(value)) {
           errors.email = "Please enter a valid email address";
         } else {
           delete errors.email;
@@ -193,17 +194,6 @@ export default function Register() {
     setLoading(false);
   };
 
-  const handleSocialLogin = (provider) => {
-    if (provider === "Google") {
-      window.location.href = `${API_URL}/api/auth/google`;
-    } else if (provider === "Instagram") {
-      window.location.href = `${API_URL}/api/auth/instagram`;
-    }
-  };
-
-  const inputClassName = (hasError) =>
-    `auth-form-input${hasError ? " is-error" : ""}`;
-
   return (
     <AuthShell
       eyebrow="Create your account"
@@ -215,34 +205,7 @@ export default function Register() {
       formTitle="Sign up"
       formCopy="Build your account once and move directly into the refreshed dashboard experience."
       error={error}
-      socialButtons={
-        <>
-          <button
-            type="button"
-            onClick={() => handleSocialLogin("Google")}
-            className="auth-social-button"
-            disabled={!oauthProviders.google}
-            title={!oauthProviders.google ? "Google sign-in is not configured" : undefined}
-          >
-            <span className="auth-social-mark is-google">
-              <GoogleIcon className="auth-social-icon" />
-            </span>
-            <span>Continue with Google</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => handleSocialLogin("Instagram")}
-            className="auth-social-button"
-            disabled={!oauthProviders.instagram}
-            title={!oauthProviders.instagram ? "Instagram sign-in is not configured" : undefined}
-          >
-            <span className="auth-social-mark is-instagram">
-              <InstagramIcon className="auth-social-icon" />
-            </span>
-            <span>Continue with Instagram</span>
-          </button>
-        </>
-      }
+      socialButtons={<SocialAuthButtons oauthProviders={oauthProviders} />}
       dividerLabel="or sign up with email"
       loading={loading}
       form={

@@ -79,6 +79,13 @@ app.use((req, res) => {
   res.status(404).json({ message: 'Route not found' });
 });
 
+// Centralized error handler — async route handlers wrapped with asyncHandler
+// forward rejections here, replacing the per-handler try/catch + 500 responses.
+// eslint-disable-next-line no-unused-vars
+app.use((err, req, res, next) => {
+  res.status(err.statusCode || 500).json({ message: err.message });
+});
+
 // Connect to MongoDB and start server
 const PORT = process.env.PORT || 5000;
 mongoose.connect(process.env.MONGO_URI)
