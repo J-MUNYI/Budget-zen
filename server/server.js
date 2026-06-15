@@ -79,6 +79,19 @@ app.use((req, res) => {
   res.status(404).json({ message: 'Route not found' });
 });
 
+// Centralized error handler: log the error and return structured JSON so failures
+// (including those forwarded via next(err), e.g. CORS rejections) are never leaked
+// as default HTML stack traces or left to hang the request.
+// eslint-disable-next-line no-unused-vars
+app.use((err, req, res, next) => {
+  console.error('Unhandled request error:', err);
+  if (res.headersSent) {
+    return next(err);
+  }
+  const status = err.status || err.statusCode || 500;
+  res.status(status).json({ message: err.message || 'Internal server error' });
+});
+
 // Connect to MongoDB and start server
 const PORT = process.env.PORT || 5000;
 mongoose.connect(process.env.MONGO_URI)
@@ -86,4 +99,7 @@ mongoose.connect(process.env.MONGO_URI)
     console.log('MongoDB connected successfully');
     app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
   })
-  .catch(err => console.error('MongoDB connection error:', err));
+  .catch(err => {
+    console.error('MongoDB connection error:', err);
+    process.exit(1);
+  });
