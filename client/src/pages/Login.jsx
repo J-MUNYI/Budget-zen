@@ -169,9 +169,9 @@ export default function Login() {
 
     if (result.success) {
       if (rememberMe) {
-        localStorage.setItem("budgetzen_remembered_email", email.trim());
+        localStorage.setItem("shilingizen_remembered_email", email.trim());
       } else {
-        localStorage.removeItem("budgetzen_remembered_email");
+        localStorage.removeItem("shilingi_remembered_email");
       }
       navigate("/dashboard");
     } else {
@@ -314,7 +314,7 @@ export default function Login() {
       }
       footer={
         <p className="auth-footer-copy">
-          New to Budget Zen?{" "}
+          New to ShilingiZen?{" "}
           <Link to="/register" className="auth-footer-link">
             Create an account
           </Link>
