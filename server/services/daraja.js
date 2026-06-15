@@ -13,6 +13,8 @@
  *   MPESA_ENV=production      — default is sandbox (https://sandbox.safaricom.co.ke)
  */
 
+const { tryParseJson } = require('../utils/parseJson');
+
 const SANDBOX_BASE = 'https://sandbox.safaricom.co.ke';
 const PRODUCTION_BASE = 'https://api.safaricom.co.ke';
 
@@ -35,12 +37,11 @@ async function getAccessToken() {
   const url = `${apiBase()}/oauth/v1/generate?grant_type=client_credentials`;
   const res = await fetch(url, { headers: { Authorization: `Basic ${auth}` } });
   const text = await res.text();
-  let data;
-  try {
-    data = JSON.parse(text);
-  } catch {
+  const parsed = tryParseJson(text);
+  if (!parsed.ok) {
     throw new Error(`Daraja OAuth: non-JSON response (${res.status}): ${text.slice(0, 200)}`);
   }
+  const data = parsed.data;
   if (!res.ok || !data.access_token) {
     throw new Error(data.errorMessage || data.error_description || `OAuth failed: ${text.slice(0, 200)}`);
   }
@@ -91,12 +92,11 @@ async function initiateAccountBalance(accessToken) {
   });
 
   const text = await res.text();
-  let data;
-  try {
-    data = JSON.parse(text);
-  } catch {
+  const parsed = tryParseJson(text);
+  if (!parsed.ok) {
     throw new Error(`Account balance API: expected JSON, got (${res.status}): ${text.slice(0, 300)}`);
   }
+  const data = parsed.data;
 
   if (!res.ok) {
     throw new Error(

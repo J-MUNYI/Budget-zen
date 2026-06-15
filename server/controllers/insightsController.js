@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const Expense = require('../models/Expense');
 const User = require('../models/User');
 const { toPublicUser } = require('../utils/publicUser');
+const gemini = require('../services/gemini');
 
 function summarizeExpenses(expenses) {
   const byCategory = {};
@@ -22,12 +23,8 @@ function summarizeExpenses(expenses) {
 
 exports.generateInsights = async (req, res) => {
   try {
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      return res.status(503).json({
-        message:
-          'AI insights are not configured. Set GEMINI_API_KEY environment variable to enable this feature.',
-      });
+    if (!gemini.isConfigured()) {
+      return res.status(503).json({ message: gemini.NOT_CONFIGURED_MESSAGE });
     }
 
     const user = await User.findById(req.user.id).select('-password');
@@ -58,43 +55,20 @@ Use plain language, no markdown headings with # — use simple labels and line b
       expenseSummary: summary,
     });
 
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
+    const { response, data, rawText, parseError } = await gemini.generateContent({
+      system,
+      userContent,
+      generationConfig: {
+        maxOutputTokens: 1024,
+        temperature: 1,
       },
-      body: JSON.stringify({
-        system_instruction: {
-          parts: {
-            text: system,
-          },
-        },
-        contents: [
-          {
-            role: 'user',
-            parts: [
-              {
-                text: userContent,
-              },
-            ],
-          },
-        ],
-        generationConfig: {
-          maxOutputTokens: 1024,
-          temperature: 1,
-        },
-      }),
     });
-   const rawText = await response.text();
-     let data = {};
-     try {
-       data = rawText ? JSON.parse(rawText) : {};
-     } catch {
-       return res.status(502).json({
-         message: 'Gemini returned non-JSON. Check server network and GEMINI_API_KEY.',
-         detail: rawText.slice(0, 280),
-       });
-     }
+    if (parseError) {
+      return res.status(502).json({
+        message: 'Gemini returned non-JSON. Check server network and GEMINI_API_KEY.',
+        detail: rawText.slice(0, 280),
+      });
+    }
 
     if (!response.ok) {
       const msg =
@@ -105,7 +79,7 @@ Use plain language, no markdown headings with # — use simple labels and line b
       return res.status(502).json({ message: msg, detail: data.error || null });
     }
 
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
+    const text = gemini.extractText(data);
     if (!text) {
       return res.status(502).json({
         message: 'No insight text returned from Gemini. Please try again.',
@@ -121,12 +95,8 @@ Use plain language, no markdown headings with # — use simple labels and line b
 
 exports.getSampleInsight = async (req, res) => {
   try {
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      return res.status(503).json({
-        message:
-          'AI insights are not configured. Set GEMINI_API_KEY environment variable to enable this feature.',
-      });
+    if (!gemini.isConfigured()) {
+      return res.status(503).json({ message: gemini.NOT_CONFIGURED_MESSAGE });
     }
 
     const sampleExpenses = [
@@ -145,25 +115,16 @@ Use plain language, no markdown headings with #. Keep total under 200 words.`;
       expenseSummary: summary,
     });
 
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        system_instruction: { parts: { text: system } },
-        contents: [{ role: 'user', parts: [{ text: userContent }] }],
-        generationConfig: { maxOutputTokens: 250, temperature: 0.7 },
-      }),
+    const { data, rawText, parseError } = await gemini.generateContent({
+      system,
+      userContent,
+      generationConfig: { maxOutputTokens: 250, temperature: 0.7 },
     });
-
-    const rawText = await response.text();
-    let data = {};
-    try {
-      data = rawText ? JSON.parse(rawText) : {};
-    } catch {
+    if (parseError) {
       return res.status(502).json({ message: 'Failed to parse insight', detail: rawText.slice(0, 200) });
     }
 
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || 'Start tracking your expenses to get personalized insights.';
+    const text = gemini.extractText(data) || 'Start tracking your expenses to get personalized insights.';
     res.json({ insight: text });
   } catch (err) {
     console.error('Sample insight error:', err);

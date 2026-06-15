@@ -1,8 +1,8 @@
 const express = require('express');
 const passport = require('passport');
-const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const { toPublicUser } = require('../utils/publicUser');
+const { signAuthToken } = require('../utils/token');
 const { register, login } = require('../controllers/authController');
 const { body } = require('express-validator');
 const validate = require('../middleware/validation');
@@ -13,6 +13,20 @@ const googleEnabled = () => Boolean(process.env.GOOGLE_CLIENT_ID && process.env.
 const instagramEnabled = () => Boolean(process.env.INSTAGRAM_CLIENT_ID && process.env.INSTAGRAM_CLIENT_SECRET);
 
 const frontendUrl = () => process.env.CLIENT_URL || 'http://localhost:5173';
+
+// Issues a JWT for the authenticated provider user and redirects back to the
+// frontend. Shared by every OAuth provider callback (Google, Instagram, ...).
+const oauthCallbackHandler = async (req, res) => {
+  try {
+    const doc = await User.findById(req.user._id);
+    const token = signAuthToken(doc._id);
+    res.redirect(
+      `${frontendUrl()}/auth/callback?token=${token}&user=${encodeURIComponent(JSON.stringify(toPublicUser(doc)))}`
+    );
+  } catch (error) {
+    res.redirect(`${frontendUrl()}/login?error=oauth_failed`);
+  }
+};
 
 router.get('/providers', (req, res) => {
   res.json({
@@ -47,17 +61,7 @@ router.get('/google/callback',
     session: false,
     failureRedirect: `${frontendUrl()}/login?error=oauth_failed`,
   }),
-  async (req, res) => {
-    try {
-      const doc = await User.findById(req.user._id);
-      const token = jwt.sign({ id: doc._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
-      res.redirect(
-        `${frontendUrl()}/auth/callback?token=${token}&user=${encodeURIComponent(JSON.stringify(toPublicUser(doc)))}`
-      );
-    } catch (error) {
-      res.redirect(`${frontendUrl()}/login?error=oauth_failed`);
-    }
-  }
+  oauthCallbackHandler
 );
 
 // Instagram OAuth routes
@@ -73,17 +77,7 @@ router.get('/instagram/callback',
     session: false,
     failureRedirect: `${frontendUrl()}/login?error=oauth_failed`,
   }),
-  async (req, res) => {
-    try {
-      const doc = await User.findById(req.user._id);
-      const token = jwt.sign({ id: doc._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
-      res.redirect(
-        `${frontendUrl()}/auth/callback?token=${token}&user=${encodeURIComponent(JSON.stringify(toPublicUser(doc)))}`
-      );
-    } catch (error) {
-      res.redirect(`${frontendUrl()}/login?error=oauth_failed`);
-    }
-  }
+  oauthCallbackHandler
 );
 
 module.exports = router;

@@ -8,6 +8,7 @@ import { ContainerScroll } from "../components/ui/ContainerScrollAnimation";
 import { useAuth } from "../context/useAuth";
 import { fetchExpenses, deleteExpense } from "../api/client";
 import { buildMonthlyBuckets, currentMonthSpent } from "../utils/monthlyTrend";
+import { formatKES } from "../utils/format";
 
 const cardPalette = ["#5f4bc8", "#1f9ce5", "#ffb62e"];
 
@@ -29,7 +30,7 @@ function CustomTrendTooltip({ active, payload, label }) {
       <p style={{ margin: 0, color: "var(--text-muted)", fontSize: "0.8rem" }}>{label}</p>
       {payload.map((entry) => (
         <p key={entry.name} style={{ margin: "6px 0 0", fontWeight: 800, color: "var(--text)" }}>
-          {entry.name}: KES {Number(entry.value).toLocaleString()}
+          {entry.name}: {formatKES(entry.value)}
         </p>
       ))}
     </div>
@@ -151,7 +152,7 @@ export default function Dashboard() {
     hasIncome
       ? {
           label: "Monthly income",
-          value: `KES ${monthlyIncome.toLocaleString()}`,
+          value: formatKES(monthlyIncome),
           copy: "Baseline from Wallet (optional for everyone)",
         }
       : {
@@ -169,7 +170,7 @@ export default function Dashboard() {
         },
     {
       label: "Total spent",
-      value: `KES ${totalSpent.toLocaleString()}`,
+      value: formatKES(totalSpent),
       copy: `${expenses.length} transactions recorded`,
     },
     utilization != null
@@ -180,7 +181,7 @@ export default function Dashboard() {
         }
       : {
           label: "Spent this month",
-          value: `KES ${cmSpent.toLocaleString()}`,
+          value: formatKES(cmSpent),
           copy: hasIncome
             ? "Income is set; usage rate appears when the month compares cleanly."
             : "Without income tracking, pair this with your M-Pesa balance in Wallet.",
@@ -192,7 +193,7 @@ export default function Dashboard() {
       <div className="dashboard-balance-card">
         <p className="dashboard-balance-label">M-Pesa</p>
         <p className="dashboard-balance-amount">
-          KES {mpesaBalance.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+          {formatKES(mpesaBalance, { maximumFractionDigits: 2 })}
         </p>
         <MpesaMaskRow last4={user?.mpesaPhoneLast4} />
         <p className="dashboard-balance-date" style={{ marginTop: "8px" }}>

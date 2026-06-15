@@ -1,3 +1,5 @@
+import { formatKES } from "../utils/format";
+
 const categoryConfig = {
   Food: { icon: "🍽", bg: "rgba(255, 142, 74, 0.12)", text: "#ff7d33" },
   Transport: { icon: "🚕", bg: "rgba(31, 156, 229, 0.12)", text: "#1f9ce5" },
@@ -27,7 +29,7 @@ export default function ExpenseItem({ expense, onEdit, onDelete }) {
 
       <div style={{ display: "flex", alignItems: "center", gap: "10px", flexShrink: 0 }}>
         <span className="activity-item-amount">
-          KES {Number(expense.amount).toLocaleString()}
+          {formatKES(expense.amount)}
         </span>
         <div style={{ display: "flex", gap: "6px" }}>
           <button

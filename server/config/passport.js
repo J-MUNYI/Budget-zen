@@ -1,10 +1,7 @@
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const User = require('../models/User');
-
-function normalizeEmail(email = '') {
-  return String(email).trim().toLowerCase();
-}
+const { normalizeEmail } = require('../utils/normalizeEmail');
 
 function stripTrailingSlash(value = '') {
   return String(value).trim().replace(/\/+$/, '');

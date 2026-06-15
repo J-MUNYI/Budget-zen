@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
 import { motion, AnimatePresence } from "framer-motion";
+import { formatKES } from "../utils/format";
 
 const COLORS = ["#5f4bc8", "#ffb62e", "#ff7d33", "#1f9ce5", "#24b36b", "#e85d9a"];
 
@@ -15,7 +16,7 @@ const CustomTooltip = ({ active, payload }) => {
         fontSize: "0.8rem",
       }}>
         <p style={{ fontWeight: 700, margin: "0 0 4px", color: "var(--text)" }}>{payload[0].name || payload[0].payload?.category}</p>
-        <p style={{ margin: 0, color: "var(--text-muted)" }}>KES {Number(payload[0].value).toLocaleString()}</p>
+        <p style={{ margin: 0, color: "var(--text-muted)" }}>{formatKES(payload[0].value)}</p>
       </div>
     );
   }
@@ -128,7 +129,7 @@ export default function ExpenseChart({ data }) {
                       <div className="dashboard-legend-dot" style={{ backgroundColor: COLORS[idx % COLORS.length] }} />
                       <span className="dashboard-legend-label">{entry.category}</span>
                     </div>
-                    <span className="dashboard-legend-value">KES {entry.amount.toLocaleString()}</span>
+                    <span className="dashboard-legend-value">{formatKES(entry.amount)}</span>
                   </div>
                 ))}
               </div>
@@ -177,7 +178,7 @@ export default function ExpenseChart({ data }) {
                       <div className="dashboard-legend-dot" style={{ backgroundColor: COLORS[idx % COLORS.length] }} />
                       <span className="dashboard-legend-label">{entry.category}</span>
                     </div>
-                    <span className="dashboard-legend-value">KES {entry.amount.toLocaleString()}</span>
+                    <span className="dashboard-legend-value">{formatKES(entry.amount)}</span>
                   </div>
                 ))}
               </div>
