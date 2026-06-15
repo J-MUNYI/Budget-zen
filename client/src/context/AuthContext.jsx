@@ -103,7 +103,13 @@ export function AuthProvider({ children }) {
         body: JSON.stringify({ name, email, password }),
       });
 
-      const data = await response.json();
+      const text = await response.text();
+      let data;
+      try {
+        data = text ? JSON.parse(text) : {};
+      } catch {
+        data = {};
+      }
 
       if (!response.ok) {
         if (data.errors && Array.isArray(data.errors)) {
@@ -116,7 +122,10 @@ export function AuthProvider({ children }) {
             error: "Please fix the highlighted fields.",
           };
         }
-        throw new Error(data.message || "Registration failed");
+        return {
+          success: false,
+          error: data.message || response.statusText || `Server error (${response.status})`,
+        };
       }
 
       localStorage.setItem("token", data.token);
@@ -124,7 +133,13 @@ export function AuthProvider({ children }) {
       setUser(data.user);
       return { success: true, user: data.user };
     } catch (error) {
-      return { success: false, error: error.message };
+      if (error.message.includes("Failed to fetch") || error.message.includes("NetworkError")) {
+        return {
+          success: false,
+          error: "Cannot connect to server. Please check if the backend is running.",
+        };
+      }
+      return { success: false, error: error.message || "Registration failed. Please try again." };
     }
   };
 
@@ -142,7 +157,16 @@ export function AuthProvider({ children }) {
       localStorage.setItem("user", JSON.stringify(profile));
       setUser(profile);
       return profile;
-    } catch {
+    } catch (err) {
+      // An expired/invalid token should end the session rather than silently
+      // leaving a stale "logged in" user whose every request 401s.
+      if (err.status === 401 || err.status === 403) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        setUser(null);
+      } else {
+        console.error("Failed to refresh user profile:", err);
+      }
       return null;
     }
   }, []);
