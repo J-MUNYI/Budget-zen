@@ -8,12 +8,12 @@ import { ContainerScroll } from "../components/ui/ContainerScrollAnimation";
 import { useAuth } from "../context/useAuth";
 import { fetchExpenses, deleteExpense } from "../api/client";
 import { buildMonthlyBuckets, currentMonthSpent } from "../utils/monthlyTrend";
-import { RiMoneyPoundCircleFill, RiCarFill, RiHome4Fill, RiGasStationFill, RiShoppingBag3Fill, RiMovieFill } from "react-icons/ri";
+import { RiMoneyDollarFill, RiCarFill, RiHome4Fill, RiGasStationFill, RiShoppingBag3Fill, RiMovieFill } from "react-icons/ri";
 
 const cardPalette = ["#5f4bc8", "#1f9ce5", "#ffb62e"];
 
 function CustomTrendTooltip({ active, payload, label }) {
-    if (!active || !payload?.length) {
+  if (!active || !payload?.length) {
     return null;
   }
 
