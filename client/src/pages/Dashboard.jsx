@@ -8,11 +8,12 @@ import { ContainerScroll } from "../components/ui/ContainerScrollAnimation";
 import { useAuth } from "../context/useAuth";
 import { fetchExpenses, deleteExpense } from "../api/client";
 import { buildMonthlyBuckets, currentMonthSpent } from "../utils/monthlyTrend";
+import { RiMoneyPoundCircleFill, RiCarFill, RiHome4Fill, RiGasStationFill, RiShoppingBag3Fill, RiMovieFill } from "react-icons/ri";
 
 const cardPalette = ["#5f4bc8", "#1f9ce5", "#ffb62e"];
 
 function CustomTrendTooltip({ active, payload, label }) {
-  if (!active || !payload?.length) {
+    if (!active || !payload?.length) {
     return null;
   }
 
@@ -109,8 +110,6 @@ export default function Dashboard() {
   );
 
   const totalSpent = expenses.reduce((sum, exp) => sum + Number(exp.amount), 0);
-  const avgExpense = expenses.length ? (totalSpent / expenses.length).toFixed(2) : 0;
-  const topCategory = [...chartData].sort((a, b) => b.amount - a.amount)[0];
   const cmSpent = currentMonthSpent(expenses);
   const utilization =
     hasIncome && monthlyIncome > 0 ? Math.min(100, Math.round((cmSpent / monthlyIncome) * 100)) : null;
@@ -291,7 +290,7 @@ export default function Dashboard() {
                 </p>
               </div>
             ) : (
-              <ResponsiveContainer width="100%" height={320}>
+              <ResponsiveContainer width="100%" height={320} borderRadius={0}>
                 <LineChart data={chartRows} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                   <CartesianGrid stroke="var(--chart-grid)" strokeDasharray="6 8" vertical={false} />
                   <XAxis axisLine={false} dataKey="month" tickLine={false} tick={{ fill: "var(--text-soft)", fontSize: 11 }} />
@@ -369,14 +368,38 @@ export default function Dashboard() {
             </p>
             <div className="dashboard-promo-graphic">
               <div className="dashboard-promo-person" />
-            </div>
-            <div className="dashboard-promo-stats">
-              <Link to="/insights" style={{ color: "var(--accent)", fontWeight: 700 }}>
-                Open Insights →
-              </Link>
-              <span style={{ marginLeft: "12px" }}>
-                Avg expense: KES {avgExpense} · Top: {topCategory?.category || "—"}
-              </span>
+              <div className="dashboard-promo-expenses">
+                <div className="dashboard-promo-expense">
+                  <RiMoneyDollarFill className="dashboard-promo-expense-icon" />
+                  <p className="dashboard-promo-expense-label">Food</p>
+                  <p className="dashboard-promo-expense-value">$500</p>
+                </div>
+                <div className="dashboard-promo-expense">
+                  <RiCarFill className="dashboard-promo-expense-icon" />
+                  <p className="dashboard-promo-expense-label">Transport</p>
+                  <p className="dashboard-promo-expense-value">$200</p>
+                </div>
+                <div className="dashboard-promo-expense">
+                  <RiHome4Fill className="dashboard-promo-expense-icon" />
+                  <p className="dashboard-promo-expense-label">Housing</p>
+                  <p className="dashboard-promo-expense-value">$300</p>
+                </div>
+                <div className="dashboard-promo-expense">
+                  <RiGasStationFill className="dashboard-promo-expense-icon" />
+                  <p className="dashboard-promo-expense-label">Fuel</p>
+                  <p className="dashboard-promo-expense-value">$80</p>
+                </div>
+                <div className="dashboard-promo-expense">
+                  <RiShoppingBag3Fill className="dashboard-promo-expense-icon" />
+                  <p className="dashboard-promo-expense-label">Shopping</p>
+                  <p className="dashboard-promo-expense-value">$150</p>
+                </div>
+                <div className="dashboard-promo-expense">
+                  <RiMovieFill className="dashboard-promo-expense-icon" />
+                  <p className="dashboard-promo-expense-label">Entertainment</p>
+                  <p className="dashboard-promo-expense-value">$100</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>

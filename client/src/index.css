@@ -6,6 +6,8 @@
 @tailwind utilities;
 
 :root {
+  --font-primary: 'Plus Jakarta Sans', sans-serif;
+  --font-secondary: 'Clash Display', sans-serif;
   --auth-bg: #040309;
   --auth-surface: rgba(11, 7, 18, 0.9);
   --auth-border: rgba(255, 255, 255, 0.1);
@@ -82,7 +84,7 @@ html {
 
 body {
   margin: 0;
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: var(--font-primary);
   background:
     radial-gradient(circle at top left, rgba(127, 95, 255, 0.1), transparent 25%),
     radial-gradient(circle at top right, rgba(31, 156, 229, 0.1), transparent 24%),
@@ -97,7 +99,7 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: "Clash Display", sans-serif;
+  font-family: var(--font-secondary);
 }
 
 * {
@@ -813,6 +815,25 @@ button {
   color: var(--text-muted);
   justify-content: space-between;
   flex-wrap: wrap;
+}
+
+.dashboard-promo-expenses {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.dashboard-promo-expense {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+}
+
+.dashboard-promo-expense-icon {
+  font-size: 1.2rem;
+  color: var(--accent);
 }
 
 .expense-chart-card {
