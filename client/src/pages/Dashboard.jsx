@@ -370,7 +370,7 @@ export default function Dashboard() {
               <div className="dashboard-promo-person" />
               <div className="dashboard-promo-expenses">
                 <div className="dashboard-promo-expense">
-                  <RiMoneyDollarFill className="dashboard-promo-expense-icon" />
+                  <RiMoneyDollarCircleFill className="dashboard-promo-expense-icon" />
                   <p className="dashboard-promo-expense-label">Food</p>
                   <p className="dashboard-promo-expense-value">$500</p>
                 </div>
