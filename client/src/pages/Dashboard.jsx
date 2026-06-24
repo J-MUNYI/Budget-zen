@@ -2,54 +2,270 @@ import ExpenseList from "../components/ExpenseList";
 import ExpenseChart from "../components/ExpenseChart";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { LineChart, Line, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import {
+  AreaChart,
+  Area,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 import AppShell from "../components/AppShell";
-import { ContainerScroll } from "../components/ui/ContainerScrollAnimation";
 import { useAuth } from "../context/useAuth";
 import { fetchExpenses, deleteExpense } from "../api/client";
 import { buildMonthlyBuckets, currentMonthSpent } from "../utils/monthlyTrend";
-import { RiMoneyDollarCircleFill, RiCarFill, RiHome4Fill, RiGasStationFill, RiShoppingBag3Fill, RiMovieFill } from "react-icons/ri";
 
 const cardPalette = ["#5f4bc8", "#1f9ce5", "#ffb62e"];
 
-function CustomTrendTooltip({ active, payload, label }) {
-  if (!active || !payload?.length) {
-    return null;
-  }
+// ─── Flywheel ───────────────────────────────────────────────────────────────
+const FLYWHEEL_SEGMENTS = [
+  { label: "Food",          icon: "🍽", color: "#5f4bc8", pct: 0.22 },
+  { label: "Transport",     icon: "🚗", color: "#1f9ce5", pct: 0.18 },
+  { label: "Housing",       icon: "🏠", color: "#ffb62e", pct: 0.28 },
+  { label: "Fuel",          icon: "⛽", color: "#24b36b", pct: 0.10 },
+  { label: "Shopping",      icon: "🛍", color: "#f3659a", pct: 0.14 },
+  { label: "Entertainment", icon: "🎬", color: "#e07d3a", pct: 0.08 },
+];
+
+function polarToCartesian(cx, cy, r, angleDeg) {
+  const rad = ((angleDeg - 90) * Math.PI) / 180;
+  return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+}
+
+function describeArc(cx, cy, r, startAngle, endAngle) {
+  const s = polarToCartesian(cx, cy, r, startAngle);
+  const e = polarToCartesian(cx, cy, r, endAngle);
+  const large = endAngle - startAngle > 180 ? 1 : 0;
+  return `M ${cx} ${cy} L ${s.x} ${s.y} A ${r} ${r} 0 ${large} 1 ${e.x} ${e.y} Z`;
+}
+
+function InsightsFlywheel() {
+  const [hovered, setHovered] = useState(null);
+  const cx = 110, cy = 110, r = 88, innerR = 44;
+  let cursor = 0;
+
+  const segments = FLYWHEEL_SEGMENTS.map((seg) => {
+    const startAngle = cursor * 360;
+    const endAngle = (cursor + seg.pct) * 360;
+    cursor += seg.pct;
+
+    // mid-angle for label placement
+    const midAngle = ((startAngle + endAngle) / 2 - 90) * (Math.PI / 180);
+    const labelR = r * 0.68;
+    const lx = cx + labelR * Math.cos(midAngle);
+    const ly = cy + labelR * Math.sin(midAngle);
+
+    // outer label
+    const outerR = r + 22;
+    const ox = cx + outerR * Math.cos(midAngle);
+    const oy = cy + outerR * Math.sin(midAngle);
+
+    return { ...seg, startAngle, endAngle, lx, ly, ox, oy };
+  });
 
   return (
     <div
       style={{
-        background: "var(--card-strong)",
-        border: "1px solid var(--border)",
-        borderRadius: "18px",
-        padding: "14px 16px",
-        boxShadow: "var(--shadow)",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: 16,
+        marginTop: 18,
+        marginBottom: 8,
       }}
     >
-      <p style={{ margin: 0, color: "var(--text-muted)", fontSize: "0.8rem" }}>{label}</p>
+      <svg
+        width="220"
+        height="220"
+        viewBox="0 0 220 220"
+        style={{ overflow: "visible" }}
+        aria-label="Spending categories flywheel"
+        role="img"
+      >
+        <defs>
+          {segments.map((seg) => (
+            <filter key={`glow-${seg.label}`} id={`glow-${seg.label}`}>
+              <feGaussianBlur stdDeviation="3" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          ))}
+        </defs>
+
+        {/* Outer ring track */}
+        <circle
+          cx={cx} cy={cy} r={r}
+          fill="none"
+          stroke="var(--border)"
+          strokeWidth="1"
+        />
+
+        {/* Segments */}
+        {segments.map((seg) => {
+          const isHov = hovered === seg.label;
+          const gap = 1.8;
+          return (
+            <g key={seg.label}>
+              <path
+                d={describeArc(cx, cy, r, seg.startAngle + gap, seg.endAngle - gap)}
+                fill={seg.color}
+                opacity={isHov ? 1 : 0.82}
+                style={{
+                  transition: "opacity 0.2s, transform 0.2s",
+                  transform: isHov ? `scale(1.04)` : "scale(1)",
+                  transformOrigin: `${cx}px ${cy}px`,
+                  cursor: "pointer",
+                }}
+                onMouseEnter={() => setHovered(seg.label)}
+                onMouseLeave={() => setHovered(null)}
+              />
+              {/* Segment icon */}
+              <text
+                x={seg.lx}
+                y={seg.ly}
+                textAnchor="middle"
+                dominantBaseline="middle"
+                fontSize="13"
+                style={{ pointerEvents: "none", userSelect: "none" }}
+              >
+                {seg.icon}
+              </text>
+            </g>
+          );
+        })}
+
+        {/* Centre hole */}
+        <circle cx={cx} cy={cy} r={innerR} fill="var(--card-bg)" />
+        <circle cx={cx} cy={cy} r={innerR} fill="none" stroke="var(--border)" strokeWidth="1" />
+
+        {/* Centre label */}
+        <text
+          x={cx} y={cy - 8}
+          textAnchor="middle"
+          dominantBaseline="middle"
+          fontSize="11"
+          fontWeight="800"
+          fontFamily="var(--font-secondary)"
+          fill="var(--text)"
+        >
+          Insights
+        </text>
+        <text
+          x={cx} y={cy + 10}
+          textAnchor="middle"
+          dominantBaseline="middle"
+          fontSize="9"
+          fontFamily="var(--font-primary)"
+          fill="var(--text-muted)"
+        >
+          by category
+        </text>
+      </svg>
+
+      {/* Legend grid */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gap: "8px 16px",
+          width: "100%",
+        }}
+      >
+        {segments.map((seg) => (
+          <div
+            key={seg.label}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              cursor: "pointer",
+              opacity: hovered && hovered !== seg.label ? 0.45 : 1,
+              transition: "opacity 0.2s",
+            }}
+            onMouseEnter={() => setHovered(seg.label)}
+            onMouseLeave={() => setHovered(null)}
+          >
+            <span
+              style={{
+                width: 8,
+                height: 8,
+                borderRadius: "50%",
+                background: seg.color,
+                flexShrink: 0,
+              }}
+            />
+            <span
+              style={{
+                fontSize: "0.78rem",
+                color: "var(--text-muted)",
+                fontFamily: "var(--font-primary)",
+              }}
+            >
+              {seg.label}
+            </span>
+            <span
+              style={{
+                marginLeft: "auto",
+                fontSize: "0.78rem",
+                fontWeight: 700,
+                color: "var(--text)",
+                fontFamily: "var(--font-primary)",
+              }}
+            >
+              {Math.round(seg.pct * 100)}%
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── Tooltip ─────────────────────────────────────────────────────────────────
+function CustomTrendTooltip({ active, payload, label }) {
+  if (!active || !payload?.length) return null;
+  return (
+    <div
+      style={{
+        background: "var(--card-strong)",
+        border: "1px solid var(--border-strong)",
+        borderRadius: 16,
+        padding: "12px 16px",
+        boxShadow: "var(--shadow)",
+        fontFamily: "var(--font-primary)",
+      }}
+    >
+      <p style={{ margin: 0, color: "var(--text-muted)", fontSize: "0.76rem", letterSpacing: "0.06em", textTransform: "uppercase" }}>
+        {label}
+      </p>
       {payload.map((entry) => (
-        <p key={entry.name} style={{ margin: "6px 0 0", fontWeight: 800, color: "var(--text)" }}>
-          {entry.name}: KES {Number(entry.value).toLocaleString()}
-        </p>
+        <div key={entry.name} style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 8 }}>
+          <span style={{ width: 8, height: 8, borderRadius: "50%", background: entry.color, flexShrink: 0 }} />
+          <p style={{ margin: 0, fontWeight: 800, color: "var(--text)", fontSize: "0.95rem" }}>
+            {entry.name}: KES {Number(entry.value).toLocaleString()}
+          </p>
+        </div>
       ))}
     </div>
   );
 }
 
+// ─── M-Pesa mask ─────────────────────────────────────────────────────────────
 function MpesaMaskRow({ last4 }) {
   const tail = String(last4 || "").replace(/\D/g, "").slice(-4);
   const lastGroup = tail.length === 4 ? tail : "••••";
   const groups = ["••••", "••••", "••••", lastGroup];
   return (
     <div className="dashboard-balance-number-row">
-      {groups.map((g, i) => (
-        <span key={`${i}-${g}`}>{g}</span>
-      ))}
+      {groups.map((g, i) => <span key={`${i}-${g}`}>{g}</span>)}
     </div>
   );
 }
 
+// ─── Dashboard ───────────────────────────────────────────────────────────────
 export default function Dashboard() {
   const { user, refreshUser } = useAuth();
   const navigate = useNavigate();
@@ -60,9 +276,7 @@ export default function Dashboard() {
   const [chartMode, setChartMode] = useState("both");
   const [monthCount, setMonthCount] = useState(12);
 
-  useEffect(() => {
-    refreshUser();
-  }, [refreshUser]);
+  useEffect(() => { refreshUser(); }, [refreshUser]);
 
   useEffect(() => {
     let cancelled = false;
@@ -77,36 +291,24 @@ export default function Dashboard() {
         if (!cancelled) setLoading(false);
       }
     })();
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, []);
 
   const monthlyIncome = user?.monthlyIncome;
-  const hasIncome =
-    typeof monthlyIncome === "number" && !Number.isNaN(monthlyIncome) && monthlyIncome >= 0;
+  const hasIncome = typeof monthlyIncome === "number" && !Number.isNaN(monthlyIncome) && monthlyIncome >= 0;
 
   const trendRows = useMemo(
     () => buildMonthlyBuckets(expenses, monthCount, hasIncome ? monthlyIncome : null),
     [expenses, monthCount, monthlyIncome, hasIncome]
   );
 
-  const chartRows = useMemo(
-    () =>
-      trendRows.map((r) => ({
-        ...r,
-        incomeLine: r.income != null ? r.income : 0,
-        spentLine: r.spent,
-      })),
+  const chartRows = useMemo(() =>
+    trendRows.map((r) => ({
+      ...r,
+      incomeLine: r.income != null ? r.income : 0,
+      spentLine: r.spent,
+    })),
     [trendRows]
-  );
-
-  const chartData = Object.values(
-    expenses.reduce((acc, exp) => {
-      acc[exp.category] = acc[exp.category] || { category: exp.category, amount: 0 };
-      acc[exp.category].amount += Number(exp.amount);
-      return acc;
-    }, {})
   );
 
   const totalSpent = expenses.reduce((sum, exp) => sum + Number(exp.amount), 0);
@@ -120,19 +322,10 @@ export default function Dashboard() {
   const currentMonthRow = trendRows.find((r) => r.key === currentKey);
   const headerMonthLabel = currentMonthRow?.month || trendRows[trendRows.length - 1]?.month || "";
 
-  const handleEdit = useCallback(
-    (expense) => navigate(`/add-expense/${expense._id}`),
-    [navigate]
-  );
-
+  const handleEdit = useCallback((expense) => navigate(`/add-expense/${expense._id}`), [navigate]);
   const handleDelete = useCallback(async (expense) => {
     const label = expense.description || expense.category || "this expense";
-    const confirmed = window.confirm(`Delete "${label}"? This action cannot be undone.`);
-
-    if (!confirmed) {
-      return;
-    }
-
+    if (!window.confirm(`Delete "${label}"? This action cannot be undone.`)) return;
     setActionError(null);
     try {
       await deleteExpense(expense._id);
@@ -148,101 +341,69 @@ export default function Dashboard() {
 
   const statCards = [
     hasIncome
-      ? {
-          label: "Monthly income",
-          value: `KES ${monthlyIncome.toLocaleString()}`,
-          copy: "Baseline from Wallet (optional for everyone)",
-        }
-      : {
-          label: "Monthly income",
-          value: "Not set",
-          copy: (
-            <>
-              Optional.{" "}
-              <Link to="/wallet" style={{ color: "var(--accent)" }}>
-                Add in Wallet
-              </Link>{" "}
-              if you want income on the chart.
-            </>
-          ),
-        },
-    {
-      label: "Total spent",
-      value: `KES ${totalSpent.toLocaleString()}`,
-      copy: `${expenses.length} transactions recorded`,
-    },
+      ? { label: "Monthly Income", value: `KES ${monthlyIncome.toLocaleString()}`, copy: "Income baseline from Wallet" }
+      : { label: "Monthly Income", value: "Not set", copy: <><Link to="/wallet" style={{ color: "var(--accent)" }}>Add in Wallet</Link> to track income vs spend.</> },
+    { label: "Total Spent", value: `KES ${totalSpent.toLocaleString()}`, copy: `${expenses.length} transactions recorded` },
     utilization != null
-      ? {
-          label: "Usage (this month)",
-          value: `${utilization}%`,
-          copy: "Spend this month vs your income baseline",
-        }
-      : {
-          label: "Spent this month",
-          value: `KES ${cmSpent.toLocaleString()}`,
-          copy: hasIncome
-            ? "Income is set; usage rate appears when the month compares cleanly."
-            : "Without income tracking, pair this with your M-Pesa balance in Wallet.",
-        },
+      ? { label: "Budget Used", value: `${utilization}%`, copy: "Spend this month vs income" }
+      : { label: "Spent This Month", value: `KES ${cmSpent.toLocaleString()}`, copy: "Month-to-date outflows" },
   ];
 
   const aside = (
     <>
+      {/* M-Pesa balance card */}
       <div className="dashboard-balance-card">
-        <p className="dashboard-balance-label">M-Pesa</p>
+        <p className="dashboard-balance-label">M-Pesa Balance</p>
         <p className="dashboard-balance-amount">
           KES {mpesaBalance.toLocaleString(undefined, { maximumFractionDigits: 2 })}
         </p>
         <MpesaMaskRow last4={user?.mpesaPhoneLast4} />
-        <p className="dashboard-balance-date" style={{ marginTop: "8px" }}>
-          <Link to="/wallet" style={{ color: "inherit", textDecoration: "underline", opacity: 0.85 }}>
-            Update balance in Wallet
+        <p className="dashboard-balance-date" style={{ marginTop: 10 }}>
+          <Link to="/wallet" style={{ color: "inherit", textDecoration: "underline", opacity: 0.85, fontFamily: "var(--font-primary)" }}>
+            Update in Wallet →
           </Link>
         </p>
-        <div className="dashboard-balance-toggle" />
       </div>
-      <ExpenseChart data={chartData} />
+
+      {/* Donut chart */}
+      <ExpenseChart data={
+        Object.values(
+          expenses.reduce((acc, exp) => {
+            acc[exp.category] = acc[exp.category] || { category: exp.category, amount: 0 };
+            acc[exp.category].amount += Number(exp.amount);
+            return acc;
+          }, {})
+        )
+      } />
     </>
   );
 
   return (
     <AppShell
       title={`Hello, ${firstName}!`}
-      subtitle="Welcome back! Here's a calmer view of your money flow today."
+      subtitle="Here's a calm view of your money flow."
       aside={aside}
     >
       <div className="dashboard-main">
-        {loadError ? (
-          <p style={{ color: "#ff6157", marginBottom: "12px" }}>{loadError}</p>
-        ) : null}
-        {actionError ? (
-          <p style={{ color: "#ff6157", marginBottom: "12px" }}>{actionError}</p>
-        ) : null}
+        {loadError && <p style={{ color: "#ff6157", marginBottom: 12, fontFamily: "var(--font-primary)" }}>{loadError}</p>}
+        {actionError && <p style={{ color: "#ff6157", marginBottom: 12, fontFamily: "var(--font-primary)" }}>{actionError}</p>}
+
+        {/* ── Toolbar ── */}
         <div className="dashboard-toolbar">
           <div className="dashboard-toolbar-tabs">
-            <button
-              type="button"
-              className={`dashboard-toolbar-tab${chartMode === "income" ? " is-active" : ""}`}
-              onClick={() => setChartMode("income")}
-            >
-              Income
-            </button>
-            <button
-              type="button"
-              className={`dashboard-toolbar-tab${chartMode === "spent" ? " is-active" : ""}`}
-              onClick={() => setChartMode("spent")}
-            >
-              Spent
-            </button>
-            <button
-              type="button"
-              className={`dashboard-toolbar-tab${chartMode === "both" ? " is-active" : ""}`}
-              onClick={() => setChartMode("both")}
-            >
-              Both
-            </button>
+            {["income", "spent", "both"].map((mode) => (
+              <button
+                key={mode}
+                type="button"
+                className={`dashboard-toolbar-tab${chartMode === mode ? " is-active" : ""}`}
+                onClick={() => setChartMode(mode)}
+                style={{ fontFamily: "var(--font-primary)" }}
+              >
+                {mode.charAt(0).toUpperCase() + mode.slice(1)}
+              </button>
+            ))}
           </div>
-          <label className="dashboard-toolbar-filter" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <label style={{ display: "flex", alignItems: "center", gap: 8, fontFamily: "var(--font-primary)" }}>
             <span style={{ fontSize: "0.78rem", color: "var(--text-muted)" }}>Range</span>
             <select
               value={monthCount}
@@ -254,6 +415,8 @@ export default function Dashboard() {
                 padding: "8px 12px",
                 color: "var(--text)",
                 fontWeight: 600,
+                fontFamily: "var(--font-primary)",
+                outline: "none",
               }}
             >
               <option value={6}>6 months</option>
@@ -263,94 +426,131 @@ export default function Dashboard() {
           </label>
         </div>
 
-        <ContainerScroll
-          className="dashboard-hero"
-          titleComponent={
-            <div className="dashboard-chart-header">
-              <div>
-                <p className="dashboard-section-eyebrow">Overview</p>
-                <h2 className="dashboard-section-title">Income vs spend rhythm</h2>
-                <p className="dashboard-hero-caption">
-                  Toggle Income, Spent, or Both; change the range to fill in missing months from your data.
-                </p>
-              </div>
-              <div className="dashboard-month-chip is-active">{headerMonthLabel || "This month"}</div>
+        {/* ── Chart panel — clean, no ContainerScroll wrapper ── */}
+        <div className="dashboard-chart-panel">
+          <div className="dashboard-chart-header">
+            <div>
+              <p className="dashboard-section-eyebrow">Overview</p>
+              <h2 className="dashboard-section-title">Income vs spend rhythm</h2>
+              <p className="dashboard-hero-caption">
+                Toggle Income, Spent, or Both — change range to explore your data.
+              </p>
             </div>
-          }
-        >
-          <div className="dashboard-chart-panel">
-            {chartMode === "income" && !hasIncome ? (
-              <div style={{ padding: "3rem 1rem", textAlign: "center", color: "var(--text-muted)" }}>
-                <p style={{ marginBottom: "0.75rem" }}>You have not set a monthly income yet.</p>
-                <p style={{ fontSize: "0.9rem" }}>
-                  <Link to="/wallet" style={{ color: "var(--accent)" }}>
-                    Open Wallet
-                  </Link>{" "}
-                  to add an optional baseline, or switch to <strong>Spent</strong> to see outflows only.
-                </p>
-              </div>
-            ) : (
-              <ResponsiveContainer width="100%" height={320} borderRadius={0}>
-                <LineChart data={chartRows} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <CartesianGrid stroke="var(--chart-grid)" strokeDasharray="6 8" vertical={false} />
-                  <XAxis axisLine={false} dataKey="month" tickLine={false} tick={{ fill: "var(--text-soft)", fontSize: 11 }} />
-                  <YAxis
-                    axisLine={false}
-                    tickFormatter={(value) => (value >= 1000 ? `${value / 1000}k` : `${value}`)}
-                    tickLine={false}
-                    tick={{ fill: "var(--text-soft)", fontSize: 12 }}
-                  />
-                  <Tooltip content={<CustomTrendTooltip />} />
-                  {showIncomeSeries ? (
-                    <Line
-                      type="monotone"
-                      dataKey="incomeLine"
-                      name="Income"
-                      stroke="var(--line-start)"
-                      strokeWidth={3}
-                      dot={{ fill: "var(--card-strong)", r: 4, stroke: "var(--line-start)", strokeWidth: 2 }}
-                      activeDot={{ r: 6, fill: "var(--card-strong)", stroke: "var(--line-start)", strokeWidth: 2 }}
-                    />
-                  ) : null}
-                  {showSpentSeries ? (
-                    <Line
-                      type="monotone"
-                      dataKey="spentLine"
-                      name="Spent"
-                      stroke="#24b36b"
-                      strokeWidth={3}
-                      dot={{ fill: "var(--card-strong)", r: 4, stroke: "#24b36b", strokeWidth: 2 }}
-                      activeDot={{ r: 6, fill: "var(--card-strong)", stroke: "#24b36b", strokeWidth: 2 }}
-                    />
-                  ) : null}
-                </LineChart>
-              </ResponsiveContainer>
-            )}
-            <div style={{ display: "flex", justifyContent: "center", gap: "8px", marginTop: "14px", flexWrap: "wrap" }}>
-              {trendRows.map((item) => (
-                <span
-                  key={item.key}
-                  className={`dashboard-month-chip${item.key === currentKey ? " is-active" : ""}`}
-                >
-                  {item.month}
-                </span>
-              ))}
+            <div className="dashboard-month-chip is-active" style={{ fontFamily: "var(--font-primary)" }}>
+              {headerMonthLabel || "This month"}
             </div>
           </div>
-        </ContainerScroll>
 
+          {chartMode === "income" && !hasIncome ? (
+            <div style={{ padding: "3rem 1rem", textAlign: "center", color: "var(--text-muted)", fontFamily: "var(--font-primary)" }}>
+              <p style={{ marginBottom: "0.75rem" }}>No monthly income set yet.</p>
+              <p style={{ fontSize: "0.9rem" }}>
+                <Link to="/wallet" style={{ color: "var(--accent)" }}>Open Wallet</Link>{" "}
+                to add a baseline, or switch to <strong>Spent</strong> to see outflows.
+              </p>
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height={300}>
+              <AreaChart data={chartRows} margin={{ top: 12, right: 8, left: -24, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="gradIncome" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%"  stopColor="var(--line-start)" stopOpacity={0.25} />
+                    <stop offset="95%" stopColor="var(--line-start)" stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient id="gradSpent" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%"  stopColor="#24b36b" stopOpacity={0.22} />
+                    <stop offset="95%" stopColor="#24b36b" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+
+                {/* Horizontal rules only — no vertical, no border box */}
+                <CartesianGrid
+                  horizontal={true}
+                  vertical={false}
+                  stroke="var(--chart-grid)"
+                  strokeDasharray="4 6"
+                />
+
+                <XAxis
+                  dataKey="month"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{
+                    fill: "var(--text-soft)",
+                    fontSize: 11,
+                    fontFamily: "var(--font-primary)",
+                  }}
+                  dy={8}
+                />
+                <YAxis
+                  axisLine={false}
+                  tickLine={false}
+                  tickFormatter={(v) => v >= 1000 ? `${v / 1000}k` : `${v}`}
+                  tick={{
+                    fill: "var(--text-soft)",
+                    fontSize: 11,
+                    fontFamily: "var(--font-primary)",
+                  }}
+                  width={44}
+                />
+                <Tooltip content={<CustomTrendTooltip />} cursor={{ stroke: "var(--border-strong)", strokeWidth: 1 }} />
+
+                {showIncomeSeries && (
+                  <Area
+                    type="monotone"
+                    dataKey="incomeLine"
+                    name="Income"
+                    stroke="var(--line-start)"
+                    strokeWidth={2.5}
+                    fill="url(#gradIncome)"
+                    dot={false}
+                    activeDot={{ r: 5, fill: "var(--card-strong)", stroke: "var(--line-start)", strokeWidth: 2 }}
+                  />
+                )}
+                {showSpentSeries && (
+                  <Area
+                    type="monotone"
+                    dataKey="spentLine"
+                    name="Spent"
+                    stroke="#24b36b"
+                    strokeWidth={2.5}
+                    fill="url(#gradSpent)"
+                    dot={false}
+                    activeDot={{ r: 5, fill: "var(--card-strong)", stroke: "#24b36b", strokeWidth: 2 }}
+                  />
+                )}
+              </AreaChart>
+            </ResponsiveContainer>
+          )}
+
+          {/* Month chips row */}
+          <div style={{ display: "flex", justifyContent: "center", gap: 6, marginTop: 14, flexWrap: "wrap" }}>
+            {trendRows.map((item) => (
+              <span
+                key={item.key}
+                className={`dashboard-month-chip${item.key === currentKey ? " is-active" : ""}`}
+                style={{ fontFamily: "var(--font-primary)" }}
+              >
+                {item.month}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {/* ── Stat cards ── */}
         <div className="dashboard-metric-grid">
           {statCards.map((stat, index) => (
             <div key={stat.label} className="dashboard-stat-card">
-              <p className="dashboard-stat-label">{stat.label}</p>
-              <p className="dashboard-stat-value" style={{ color: cardPalette[index] }}>
+              <p className="dashboard-stat-label" style={{ fontFamily: "var(--font-primary)" }}>{stat.label}</p>
+              <p className="dashboard-stat-value" style={{ color: cardPalette[index], fontFamily: "var(--font-secondary)" }}>
                 {stat.value}
               </p>
-              <p className="dashboard-stat-copy">{stat.copy}</p>
+              <p className="dashboard-stat-copy" style={{ fontFamily: "var(--font-primary)" }}>{stat.copy}</p>
             </div>
           ))}
         </div>
 
+        {/* ── Lower grid: transactions + insights flywheel ── */}
         <div className="dashboard-lower-grid">
           <ExpenseList
             expenses={expenses}
@@ -360,47 +560,40 @@ export default function Dashboard() {
           />
 
           <div className="dashboard-promo-card">
-            <p className="dashboard-section-eyebrow">Insights</p>
-            <h2 className="dashboard-section-title">AI summary and coaching</h2>
-            <p className="dashboard-section-copy">
-              Generate analysis, a proper written summary, and practical advice from your recorded expenses — with
-              optional context you control.
+            <p className="dashboard-section-eyebrow" style={{ fontFamily: "var(--font-primary)" }}>Insights</p>
+            <h2 className="dashboard-section-title" style={{ fontFamily: "var(--font-secondary)" }}>
+              AI summary &amp; coaching
+            </h2>
+            <p className="dashboard-section-copy" style={{ fontFamily: "var(--font-primary)" }}>
+              Tap any category to explore spending patterns. Generate analysis and practical advice from your recorded expenses.
             </p>
-            <div className="dashboard-promo-graphic">
-              <div className="dashboard-promo-person" />
-              <div className="dashboard-promo-expenses">
-                <div className="dashboard-promo-expense">
-                  <RiMoneyDollarCircleFill className="dashboard-promo-expense-icon" />
-                  <p className="dashboard-promo-expense-label">Food</p>
-                  <p className="dashboard-promo-expense-value">$500</p>
-                </div>
-                <div className="dashboard-promo-expense">
-                  <RiCarFill className="dashboard-promo-expense-icon" />
-                  <p className="dashboard-promo-expense-label">Transport</p>
-                  <p className="dashboard-promo-expense-value">$200</p>
-                </div>
-                <div className="dashboard-promo-expense">
-                  <RiHome4Fill className="dashboard-promo-expense-icon" />
-                  <p className="dashboard-promo-expense-label">Housing</p>
-                  <p className="dashboard-promo-expense-value">$300</p>
-                </div>
-                <div className="dashboard-promo-expense">
-                  <RiGasStationFill className="dashboard-promo-expense-icon" />
-                  <p className="dashboard-promo-expense-label">Fuel</p>
-                  <p className="dashboard-promo-expense-value">$80</p>
-                </div>
-                <div className="dashboard-promo-expense">
-                  <RiShoppingBag3Fill className="dashboard-promo-expense-icon" />
-                  <p className="dashboard-promo-expense-label">Shopping</p>
-                  <p className="dashboard-promo-expense-value">$150</p>
-                </div>
-                <div className="dashboard-promo-expense">
-                  <RiMovieFill className="dashboard-promo-expense-icon" />
-                  <p className="dashboard-promo-expense-label">Entertainment</p>
-                  <p className="dashboard-promo-expense-value">$100</p>
-                </div>
-              </div>
-            </div>
+
+            {/* Flywheel replaces the old illustration */}
+            <InsightsFlywheel />
+
+            <Link
+              to="/insights"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 8,
+                marginTop: 4,
+                padding: "13px 20px",
+                borderRadius: 18,
+                background: "linear-gradient(135deg, var(--accent), var(--accent-warm))",
+                color: "#fff",
+                fontWeight: 800,
+                fontSize: "0.9rem",
+                textDecoration: "none",
+                fontFamily: "var(--font-primary)",
+                transition: "opacity 0.2s, transform 0.15s",
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.opacity = "0.9"; e.currentTarget.style.transform = "translateY(-1px)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.transform = "translateY(0)"; }}
+            >
+              Generate AI Insights →
+            </Link>
           </div>
         </div>
       </div>

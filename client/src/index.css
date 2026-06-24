@@ -468,195 +468,166 @@ button {
   filter: grayscale(0.15) brightness(1.35);
   text-shadow: 0 0 1px rgba(255, 255, 255, 0.5);
 }
+/* ═══════════════════════════════════════════════════════════════
+   BudgetZen — dashboard-patches.css
+   Drop these into your index.css, replacing the matching blocks.
+   ═══════════════════════════════════════════════════════════════ */
 
-.dashboard-main {
-  display: flex;
-  flex-direction: column;
-  gap: 22px;
-}
-
-.dashboard-section-eyebrow,
-.expense-form-eyebrow {
-  font-size: 0.74rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--accent);
-  font-weight: 800;
-}
-
-.dashboard-section-title,
-.expense-form-title,
-.expense-aside-title {
-  font-size: 1.35rem;
-  font-weight: 800;
-  margin-top: 10px;
-}
-
-.dashboard-section-copy,
-.expense-form-copy,
-.expense-aside-copy {
-  color: var(--text-muted);
-  line-height: 1.7;
-  margin-top: 8px;
-}
-
-.dashboard-toolbar-tabs {
-  display: inline-flex;
-  gap: 10px;
-  padding: 8px;
-  background: var(--card-soft);
-  border-radius: 18px;
-  border: 1px solid var(--border);
-}
-
-.dashboard-toolbar-tab {
-  background: transparent;
-  border-radius: 14px;
-  padding: 10px 16px;
-  color: var(--text-muted);
-  cursor: pointer;
-  font-weight: 700;
-}
-
-.dashboard-toolbar-tab.is-active {
-  background: var(--card-strong);
-  color: var(--text);
-  box-shadow: inset 0 0 0 1px var(--border);
-}
-
-.dashboard-toolbar-filter {
-  padding: 12px 18px;
-  border-radius: 16px;
-  background: var(--card-strong);
-  border: 1px solid var(--border);
-  color: var(--text);
-}
-
-.dashboard-hero {
-  border-radius: 34px;
-  overflow: hidden;
-}
-
+/* ── 1. Chart panel: remove the box border, let chart breathe ── */
 .dashboard-chart-panel {
-  border-radius: 34px;
-  padding: 26px;
-}
-
-.dashboard-chart-header {
-  display: flex;
-  justify-content: space-between;
-  gap: 18px;
-  align-items: flex-start;
-  margin-bottom: 16px;
-}
-
-.dashboard-hero-caption {
-  color: var(--text-muted);
-  max-width: 400px;
-  line-height: 1.6;
-}
-
-.dashboard-balance-card {
-  width: min(100%, 320px);
-  min-height: 190px;
   border-radius: 28px;
-  padding: 22px;
-  color: #fff;
-  background:
-    linear-gradient(130deg, rgba(18, 163, 223, 0.96) 0%, rgba(18, 163, 223, 0.96) 40%, rgba(43, 59, 158, 0.98) 40%, rgba(43, 59, 158, 0.98) 72%, rgba(255, 174, 28, 0.98) 72%, rgba(255, 174, 28, 0.98) 100%);
+  padding: 24px 24px 16px;
+  /* No border override — relies on the shared card class.
+     ContainerScroll wrapper removed in JSX; this is now a plain card. */
 }
 
-.dashboard-balance-label,
-.dashboard-balance-date {
-  margin: 0;
-  opacity: 0.88;
+/* ── 2. Recharts SVG: kill any stray outline/border the lib injects ── */
+.recharts-wrapper,
+.recharts-surface {
+  outline: none !important;
+  border: none !important;
+  overflow: visible !important;
 }
 
-.dashboard-balance-amount {
-  font-size: 2.3rem;
-  font-weight: 800;
-  margin: 8px 0 16px;
+/* Keep the responsive container flush */
+.recharts-responsive-container {
+  border: none !important;
+  outline: none !important;
 }
 
-.dashboard-balance-number-row {
-  display: flex;
-  gap: 14px;
-  flex-wrap: wrap;
-  font-weight: 700;
-}
-
-.dashboard-balance-toggle {
-  margin-top: 18px;
-  width: 44px;
-  height: 24px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.35);
-  position: relative;
-}
-
-.dashboard-balance-toggle::after {
-  content: "";
-  position: absolute;
-  top: 3px;
-  left: 23px;
-  width: 18px;
-  height: 18px;
-  border-radius: 999px;
-  background: #fff;
-}
-
-.dashboard-month-chip {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 46px;
-  height: 32px;
-  border-radius: 12px;
-  font-size: 0.84rem;
-  color: var(--text-muted);
-  background: transparent;
-}
-
-.dashboard-month-chip.is-active {
-  background: var(--text);
-  color: color-mix(in srgb, var(--bg) 75%, white 25%);
-}
-
-.dashboard-metric-grid,
-.dashboard-lower-grid,
-.expense-form-grid {
-  display: grid;
-}
-
-.dashboard-metric-grid {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
+/* ── 3. Stat cards: tighten padding, consistent font stack ── */
 .dashboard-stat-card {
-  padding: 20px 22px;
-  border-radius: 26px;
+  padding: 18px 20px;
+  border-radius: 24px;
+  font-family: var(--font-primary);
 }
 
 .dashboard-stat-label {
-  font-size: 0.76rem;
+  font-size: 0.72rem;
   text-transform: uppercase;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.18em;
   color: var(--text-muted);
+  font-family: var(--font-primary);
 }
 
 .dashboard-stat-value {
-  font-size: 2rem;
+  font-size: 1.75rem;   /* was 2rem — still punchy, less overflow risk */
   font-weight: 800;
-  margin-top: 8px;
+  margin-top: 6px;
+  font-family: var(--font-secondary);
+  line-height: 1.1;
 }
 
 .dashboard-stat-copy {
   color: var(--text-muted);
-  margin-top: 6px;
+  margin-top: 5px;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  font-family: var(--font-primary);
 }
 
+/* ── 4. Metric grid: equal columns, better gap ── */
+.dashboard-metric-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+/* ── 5. Lower grid: balanced columns, full height ── */
 .dashboard-lower-grid {
-  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+  gap: 14px;
+  align-items: stretch;  /* both columns same height */
+}
+
+/* ── 6. Promo card (insights): consistent padding, flex layout ── */
+.dashboard-promo-card {
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  /* Remove fixed height constraints — content fills naturally */
+  min-height: unset;
+  border-radius: 28px;
+}
+
+/* ── 7. Sidebar: tighter spacing so nothing floats ── */
+.shell-sidebar {
+  gap: 18px;
+}
+
+.shell-sidebar-promo {
+  margin-top: auto;
+  padding: 18px 16px;
+  border-radius: 24px;
+}
+
+/* ── 8. Main dashboard flow gap ── */
+.dashboard-main {
+  gap: 18px;
+}
+
+/* ── 9. Toolbar: consistent font ── */
+.dashboard-toolbar-tab,
+.dashboard-toolbar-tabs,
+.dashboard-toolbar-filter {
+  font-family: var(--font-primary);
+}
+
+/* ── 10. Section titles: enforce font-secondary everywhere ── */
+.dashboard-section-title,
+.expense-form-title,
+.expense-aside-title {
+  font-family: var(--font-secondary);
+}
+
+.dashboard-section-eyebrow,
+.dashboard-section-copy,
+.dashboard-hero-caption,
+.dashboard-month-chip {
+  font-family: var(--font-primary);
+}
+
+/* ── 11. Activity items: font consistency ── */
+.activity-item-title {
+  font-family: var(--font-secondary);
+  font-size: 0.92rem;
+}
+
+.activity-item-copy,
+.activity-item-amount {
+  font-family: var(--font-primary);
+}
+
+/* ── 12. Balance card: font ── */
+.dashboard-balance-label,
+.dashboard-balance-date,
+.dashboard-balance-number-row {
+  font-family: var(--font-primary);
+}
+
+.dashboard-balance-amount {
+  font-family: var(--font-secondary);
+}
+
+/* ── 13. Responsive patches ── */
+@media (max-width: 1200px) {
+  .dashboard-metric-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .dashboard-lower-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-metric-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .dashboard-stat-value {
+    font-size: 1.5rem;
+  }
 }
 
 .expense-list-card,
