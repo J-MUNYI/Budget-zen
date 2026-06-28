@@ -475,9 +475,7 @@ button {
 /* ── 1. Chart panel: remove the box border, let chart breathe ── */
 .dashboard-chart-panel {
   border-radius: 28px;
-  padding: 24px 24px 16px;
-  /* No border override — relies on the shared card class.
-     ContainerScroll wrapper removed in JSX; this is now a plain card. */
+  padding: 28px;
 }
 
 /* ── 2. Recharts SVG: kill any stray outline/border the lib injects ── */
@@ -496,31 +494,31 @@ button {
 
 /* ── 3. Stat cards: tighten padding, consistent font stack ── */
 .dashboard-stat-card {
-  padding: 18px 20px;
-  border-radius: 24px;
+  padding: 22px 24px;
+  border-radius: 28px;
   font-family: var(--font-primary);
 }
 
 .dashboard-stat-label {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   text-transform: uppercase;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.14em;
   color: var(--text-muted);
   font-family: var(--font-primary);
 }
 
 .dashboard-stat-value {
-  font-size: 1.75rem;   /* was 2rem — still punchy, less overflow risk */
+  font-size: 1.85rem;
   font-weight: 800;
-  margin-top: 6px;
+  margin-top: 8px;
   font-family: var(--font-secondary);
-  line-height: 1.1;
+  line-height: 1.15;
 }
 
 .dashboard-stat-copy {
   color: var(--text-muted);
-  margin-top: 5px;
-  font-size: 0.82rem;
+  margin-top: 6px;
+  font-size: 0.8rem;
   line-height: 1.5;
   font-family: var(--font-primary);
 }
@@ -528,22 +526,21 @@ button {
 /* ── 4. Metric grid: equal columns, better gap ── */
 .dashboard-metric-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 14px;
+  gap: 20px;
 }
 
 /* ── 5. Lower grid: balanced columns, full height ── */
 .dashboard-lower-grid {
   grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
-  gap: 14px;
-  align-items: stretch;  /* both columns same height */
+  gap: 24px;
+  align-items: stretch;
 }
 
 /* ── 6. Promo card (insights): consistent padding, flex layout ── */
 .dashboard-promo-card {
-  padding: 22px;
+  padding: 28px;
   display: flex;
   flex-direction: column;
-  /* Remove fixed height constraints — content fills naturally */
   min-height: unset;
   border-radius: 28px;
 }
@@ -561,7 +558,7 @@ button {
 
 /* ── 8. Main dashboard flow gap ── */
 .dashboard-main {
-  gap: 18px;
+  gap: 28px;
 }
 
 /* ── 9. Toolbar: consistent font ── */
@@ -632,21 +629,36 @@ button {
 @media (max-width: 1200px) {
   .dashboard-metric-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
   }
 
   .dashboard-lower-grid {
     grid-template-columns: 1fr;
+    gap: 20px;
   }
 }
 
 @media (max-width: 768px) {
   .dashboard-metric-grid {
     grid-template-columns: 1fr;
-    gap: 10px;
+    gap: 14px;
   }
 
   .dashboard-stat-value {
-    font-size: 1.5rem;
+    font-size: 1.6rem;
+  }
+
+  .dashboard-chart-panel,
+  .expense-form-card,
+  .expense-list-card,
+  .expense-chart-card,
+  .dashboard-promo-card,
+  .expense-spotlight-card {
+    padding: 20px;
+  }
+
+  .dashboard-balance-card {
+    width: 100%;
   }
 }
 
@@ -1720,6 +1732,7 @@ button {
 
   .dashboard-balance-card {
     width: 100%;
+    padding: 22px;
   }
 
   .auth-shell {
