@@ -279,6 +279,7 @@ export default function Dashboard() {
   useEffect(() => { refreshUser(); }, [refreshUser]);
 
   useEffect(() => {
+    if (!user) return;
     let cancelled = false;
     setLoadError(null);
     (async () => {
@@ -292,7 +293,7 @@ export default function Dashboard() {
       }
     })();
     return () => { cancelled = true; };
-  }, []);
+  }, [user]);
 
   const monthlyIncome = user?.monthlyIncome;
   const hasIncome = typeof monthlyIncome === "number" && !Number.isNaN(monthlyIncome) && monthlyIncome >= 0;

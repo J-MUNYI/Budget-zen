@@ -143,6 +143,9 @@ export function AuthProvider({ children }) {
       setUser(profile);
       return profile;
     } catch {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      setUser(null);
       return null;
     }
   }, []);
