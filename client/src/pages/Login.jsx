@@ -12,7 +12,7 @@ import {
   YAxis,
 } from "recharts";
 import AuthShell from "../components/AuthShell";
-import { GoogleIcon, InstagramIcon } from "../components/ui/AppIcons";
+import { GoogleIcon } from "../components/ui/AppIcons";
 
 const sampleData = [
   { name: "Mon", value: 3200 },
@@ -92,8 +92,6 @@ export default function Login() {
       setError("OAuth authentication failed. Please try again or use email/password.");
     } else if (oauthError === "google_disabled") {
       setError("Google sign-in is not configured yet on the server.");
-    } else if (oauthError === "instagram_disabled") {
-      setError("Instagram sign-in is not configured yet on the server.");
     }
 
     const savedEmail = localStorage.getItem("budgetzen_remembered_email");
@@ -187,8 +185,6 @@ export default function Login() {
   const handleSocialLogin = (provider) => {
     if (provider === "Google") {
       window.location.href = `${API_URL}/api/auth/google`;
-    } else if (provider === "Instagram") {
-      window.location.href = `${API_URL}/api/auth/instagram`;
     }
   };
 
@@ -208,32 +204,18 @@ export default function Login() {
       formCopy="Continue with a provider or use your email to get back to your budgeting overview."
       error={error}
       socialButtons={
-        <>
-          <button
-            type="button"
-            onClick={() => handleSocialLogin("Google")}
-            className="auth-social-button"
-            disabled={!oauthProviders.google}
-            title={!oauthProviders.google ? "Google sign-in is not configured" : undefined}
-          >
-            <span className="auth-social-mark is-google">
-              <GoogleIcon className="auth-social-icon" />
-            </span>
-            <span>Continue with Google</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => handleSocialLogin("Instagram")}
-            className="auth-social-button"
-            disabled={!oauthProviders.instagram}
-            title={!oauthProviders.instagram ? "Instagram sign-in is not configured" : undefined}
-          >
-            <span className="auth-social-mark is-instagram">
-              <InstagramIcon className="auth-social-icon" />
-            </span>
-            <span>Continue with Instagram</span>
-          </button>
-        </>
+        <button
+          type="button"
+          onClick={() => handleSocialLogin("Google")}
+          className="auth-social-button"
+          disabled={!oauthProviders.google}
+          title={!oauthProviders.google ? "Google sign-in is not configured" : undefined}
+        >
+          <span className="auth-social-mark is-google">
+            <GoogleIcon className="auth-social-icon" />
+          </span>
+          <span>Continue with Google</span>
+        </button>
       }
       dividerLabel="or continue with email"
       loading={loading}

@@ -12,7 +12,7 @@ import {
   YAxis,
 } from "recharts";
 import AuthShell from "../components/AuthShell";
-import { GoogleIcon, InstagramIcon } from "../components/ui/AppIcons";
+import { GoogleIcon } from "../components/ui/AppIcons";
 
 const sampleData = [
   { name: "Mon", value: 1200 },
@@ -196,8 +196,6 @@ export default function Register() {
   const handleSocialLogin = (provider) => {
     if (provider === "Google") {
       window.location.href = `${API_URL}/api/auth/google`;
-    } else if (provider === "Instagram") {
-      window.location.href = `${API_URL}/api/auth/instagram`;
     }
   };
 
@@ -216,32 +214,18 @@ export default function Register() {
       formCopy="Build your account once and move directly into the refreshed dashboard experience."
       error={error}
       socialButtons={
-        <>
-          <button
-            type="button"
-            onClick={() => handleSocialLogin("Google")}
-            className="auth-social-button"
-            disabled={!oauthProviders.google}
-            title={!oauthProviders.google ? "Google sign-in is not configured" : undefined}
-          >
-            <span className="auth-social-mark is-google">
-              <GoogleIcon className="auth-social-icon" />
-            </span>
-            <span>Continue with Google</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => handleSocialLogin("Instagram")}
-            className="auth-social-button"
-            disabled={!oauthProviders.instagram}
-            title={!oauthProviders.instagram ? "Instagram sign-in is not configured" : undefined}
-          >
-            <span className="auth-social-mark is-instagram">
-              <InstagramIcon className="auth-social-icon" />
-            </span>
-            <span>Continue with Instagram</span>
-          </button>
-        </>
+        <button
+          type="button"
+          onClick={() => handleSocialLogin("Google")}
+          className="auth-social-button"
+          disabled={!oauthProviders.google}
+          title={!oauthProviders.google ? "Google sign-in is not configured" : undefined}
+        >
+          <span className="auth-social-mark is-google">
+            <GoogleIcon className="auth-social-icon" />
+          </span>
+          <span>Continue with Google</span>
+        </button>
       }
       dividerLabel="or sign up with email"
       loading={loading}

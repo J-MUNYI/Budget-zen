@@ -5,7 +5,7 @@ import { AuthContext } from "./authContext";
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [oauthProviders, setOauthProviders] = useState({ google: false, instagram: false });
+  const [oauthProviders, setOauthProviders] = useState({ google: false });
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -30,11 +30,10 @@ export function AuthProvider({ children }) {
       const data = await response.json();
       setOauthProviders({
         google: Boolean(data.google),
-        instagram: Boolean(data.instagram),
       });
       return data;
     } catch {
-      setOauthProviders({ google: false, instagram: false });
+      setOauthProviders({ google: false });
       return null;
     }
   }, []);
