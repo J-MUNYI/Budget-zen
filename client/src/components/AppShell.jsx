@@ -205,8 +205,8 @@ export default function AppShell({ title, subtitle, children, aside }) {
 
             {/* Credit */}
             <div style={{ fontSize: "0.76rem", color: "var(--text-muted)", textAlign: "right", fontFamily: "var(--font-primary)" }}>
-              <p style={{ margin: 0 }}>Welcome back, {firstName}! 🤍</p>
-              <p style={{ margin: "2px 0 0" }}>© {new Date().getFullYear()} A Muny1verse creation</p>
+              <p style={{ margin: 0 }}>Welcome back, {firstName}!</p>
+              <p style={{ margin: "2px 0 0" }}>© {new Date().getFullYear()} A Muny1verse creation 🤍</p>
             </div>
           </div>
         </footer>
