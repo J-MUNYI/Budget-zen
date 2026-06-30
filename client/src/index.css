@@ -8,6 +8,7 @@
 :root {
   --font-primary: 'Plus Jakarta Sans', sans-serif;
   --font-secondary: 'Clash Display', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
   --auth-bg: #040309;
   --auth-surface: rgba(11, 7, 18, 0.9);
   --auth-border: rgba(255, 255, 255, 0.1);
@@ -148,7 +149,7 @@ button {
   padding: 28px 22px;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 18px;
 }
 
 .shell-brand {
@@ -436,7 +437,7 @@ button {
 .shell-secondary {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 16px;
 }
 
 .shell-footer {
@@ -467,9 +468,22 @@ button {
   filter: grayscale(0.15) brightness(1.35);
   text-shadow: 0 0 1px rgba(255, 255, 255, 0.5);
 }
+
 /* ═══════════════════════════════════════════════════════════════
-   BudgetZen — dashboard-patches.css
+   BudgetZen — dashboard-patches.css (revamped)
    Drop these into your index.css, replacing the matching blocks.
+   Changes this revision:
+   1. Real bank-card treatment for the M-Pesa balance card
+      (chip, contactless mark, masked PAN, holder/expiry row,
+      network mark) — replaces the old flat panel + pseudo-chip dots.
+   2. Distinct type scale for section eyebrow / title / caption so
+      "Overview" / "Income vs spend rhythm" / toggle copy read as
+      three different tiers instead of near-identical weights.
+   3. New .dashboard-aside-stats stack — the three metric cards now
+      live in the right rail under the donut, not in the main column.
+   4. Tighter .dashboard-main rhythm so the chart panel and the
+      lower grid (transactions + insights) sit closer together.
+   5. Full responsive pass for the new card + stacked stats.
    ═══════════════════════════════════════════════════════════════ */
 
 /* ── 1. Chart panel: remove the box border, let chart breathe ── */
@@ -486,13 +500,12 @@ button {
   overflow: visible !important;
 }
 
-/* Keep the responsive container flush */
 .recharts-responsive-container {
   border: none !important;
   outline: none !important;
 }
 
-/* ── 3. Stat cards: tighten padding, consistent font stack ── */
+/* ── 3. Stat cards: base styling shared by full-width and mini variants ── */
 .dashboard-stat-card {
   padding: 22px 24px;
   border-radius: 28px;
@@ -523,13 +536,40 @@ button {
   font-family: var(--font-primary);
 }
 
-/* ── 4. Metric grid: equal columns, better gap ── */
+/* ── 3b. Mini variant — used when stat cards stack in the aside rail ── */
+.dashboard-aside-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dashboard-stat-card--mini {
+  padding: 16px 18px;
+  border-radius: 22px;
+}
+
+.dashboard-stat-card--mini .dashboard-stat-label {
+  font-size: 0.64rem;
+  letter-spacing: 0.12em;
+}
+
+.dashboard-stat-card--mini .dashboard-stat-value {
+  font-size: 1.3rem;
+  margin-top: 6px;
+}
+
+.dashboard-stat-card--mini .dashboard-stat-copy {
+  font-size: 0.74rem;
+  margin-top: 4px;
+}
+
+/* ── 4. Metric grid: kept for any page still using the 3-up layout ── */
 .dashboard-metric-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 20px;
 }
 
-/* ── 5. Lower grid: balanced columns, full height ── */
+/* ── 5. Lower grid: balanced columns, full height, pulled closer to chart ── */
 .dashboard-lower-grid {
   grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
   gap: 24px;
@@ -546,19 +586,18 @@ button {
 }
 
 /* ── 7. Sidebar: tighter spacing so nothing floats ── */
-.shell-sidebar {
-  gap: 18px;
-}
-
 .shell-sidebar-promo {
   margin-top: auto;
   padding: 18px 16px;
   border-radius: 24px;
 }
 
-/* ── 8. Main dashboard flow gap ── */
+/* ── 8. Main dashboard flow gap — tightened so the chart panel and
+        the transactions/insights row aren't floating apart ── */
 .dashboard-main {
-  gap: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
 }
 
 /* ── 9. Toolbar: consistent font ── */
@@ -568,18 +607,47 @@ button {
   font-family: var(--font-primary);
 }
 
-/* ── 10. Section titles: enforce font-secondary everywhere ── */
+/* ── 10. Type hierarchy: eyebrow / title / caption are now visually
+         distinct tiers, not three lines at near-identical weight ── */
+.dashboard-section-eyebrow,
+.expense-form-eyebrow {
+  font-family: var(--font-primary);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
 .dashboard-section-title,
 .expense-form-title,
 .expense-aside-title {
   font-family: var(--font-secondary);
+  font-size: 1.5rem;
+  line-height: 1.22;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  margin-top: 4px;
 }
 
-.dashboard-section-eyebrow,
 .dashboard-section-copy,
 .dashboard-hero-caption,
+.expense-form-copy,
+.expense-aside-copy {
+  font-family: var(--font-primary);
+  font-size: 0.85rem;
+  line-height: 1.55;
+  font-weight: 400;
+  color: var(--text-muted);
+  margin-top: 6px;
+  max-width: 46ch;
+}
+
 .dashboard-month-chip {
   font-family: var(--font-primary);
+  font-size: 0.78rem;
+  font-weight: 600;
 }
 
 /* ── 11. Activity items: font consistency ── */
@@ -593,36 +661,155 @@ button {
   font-family: var(--font-primary);
 }
 
-/* ── 12. Balance card: font ── */
-.dashboard-balance-label {
-  font-family: var(--font-primary);
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--text-muted);
+/* ── 12. Bank card — replaces the old .dashboard-balance-card panel ──
+         Real card proportions, chip, contactless mark, masked PAN in
+         monospace, holder/expiry row, network mark bottom-right. ── */
+.dashboard-bank-card {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  border-radius: 24px;
+  padding: 22px 24px 20px;
+  aspect-ratio: 1.586 / 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background:
+    radial-gradient(circle at 85% 0%, color-mix(in srgb, var(--accent-warm) 30%, transparent), transparent 55%),
+    linear-gradient(135deg, color-mix(in srgb, var(--accent-strong) 92%, black 8%) 0%, var(--accent) 55%, color-mix(in srgb, var(--accent) 80%, var(--accent-cool) 20%) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow:
+    0 24px 48px -18px color-mix(in srgb, var(--accent) 55%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  color: #f5f5f0;
+}
+
+.dashboard-bank-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  position: relative;
+  z-index: 1;
+}
+
+.dashboard-bank-label {
+  margin: 0 0 4px;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
+  color: rgba(245, 245, 240, 0.62);
+  font-family: var(--font-primary);
 }
 
-.dashboard-balance-amount {
+.dashboard-bank-amount {
+  margin: 0;
+  font-size: 1.55rem;
+  font-weight: 800;
   font-family: var(--font-secondary);
-  font-size: 1.8rem;
-  font-weight: 700;
-  margin-top: 8px;
+  letter-spacing: 0.01em;
 }
 
-.dashboard-balance-number-row {
+.dashboard-bank-contactless {
+  color: rgba(245, 245, 240, 0.65);
+  transform: rotate(90deg);
+  flex-shrink: 0;
+}
+
+.dashboard-bank-chip {
+  position: relative;
+  z-index: 1;
+  margin-top: 2px;
+}
+
+.dashboard-bank-number {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  gap: 14px;
+  margin: 4px 0 0;
+  font-family: var(--font-mono);
+  font-size: 1.05rem;
+  letter-spacing: 0.06em;
+  color: rgba(245, 245, 240, 0.94);
+}
+
+.dashboard-bank-card-bottom {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.dashboard-bank-meta-label {
+  margin: 0 0 2px;
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(245, 245, 240, 0.5);
   font-family: var(--font-primary);
-  font-size: 1.1rem;
+}
+
+.dashboard-bank-meta-value {
+  margin: 0;
+  font-size: 0.82rem;
   font-weight: 600;
-  letter-spacing: 0.24em;
-  color: var(--text);
-  margin-top: 14px;
+  font-family: var(--font-primary);
+  color: rgba(245, 245, 240, 0.94);
 }
 
-.dashboard-balance-date {
-  font-family: var(--font-primary);
-  font-size: 0.84rem;
-  color: var(--text-muted);
+.dashboard-bank-network {
+  position: relative;
+  width: 46px;
+  height: 28px;
+  flex-shrink: 0;
+}
+
+.dashboard-bank-network-circle {
+  position: absolute;
+  top: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  opacity: 0.85;
+}
+
+.dashboard-bank-network-circle--a {
+  left: 0;
+  background: var(--accent-warm);
+}
+
+.dashboard-bank-network-circle--b {
+  left: 18px;
+  background: #f5f5f0;
+  mix-blend-mode: screen;
+  opacity: 0.7;
+}
+
+.dashboard-bank-link {
+  position: relative;
+  z-index: 1;
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .dashboard-bank-link {
+    display: inline-block;
+    margin-top: 4px;
+    font-size: 0.72rem;
+    color: rgba(245, 245, 240, 0.72);
+    text-decoration: underline;
+    font-family: var(--font-primary);
+    width: fit-content;
+  }
+}
+
+:root[data-theme="dark"] .dashboard-bank-card {
+  border-color: rgba(255, 255, 255, 0.14);
+  box-shadow:
+    0 24px 48px -18px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 /* ── 13. Responsive patches ── */
@@ -634,18 +821,36 @@ button {
 
   .dashboard-lower-grid {
     grid-template-columns: 1fr;
-    gap: 20px;
+    gap: 18px;
   }
 }
 
 @media (max-width: 768px) {
   .dashboard-metric-grid {
     grid-template-columns: 1fr;
-    gap: 14px;
+  }
+
+  .dashboard-aside-stats {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .dashboard-stat-card--mini {
+    flex: 1 1 calc(50% - 10px);
   }
 
   .dashboard-stat-value {
     font-size: 1.6rem;
+  }
+
+  .dashboard-section-title {
+    font-size: 1.25rem;
+  }
+
+  .dashboard-hero-caption,
+  .dashboard-section-copy {
+    max-width: none;
   }
 
   .dashboard-chart-panel,
@@ -657,8 +862,41 @@ button {
     padding: 20px;
   }
 
-  .dashboard-balance-card {
+  .dashboard-bank-card {
     width: 100%;
+    aspect-ratio: 1.7 / 1;
+    padding: 18px 20px 16px;
+    border-radius: 20px;
+  }
+
+  .dashboard-bank-amount {
+    font-size: 1.3rem;
+  }
+
+  .dashboard-bank-number {
+    font-size: 0.92rem;
+    gap: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-bank-card {
+    aspect-ratio: 1.85 / 1;
+    border-radius: 16px;
+    padding: 16px 16px 14px;
+  }
+
+  .dashboard-bank-number {
+    gap: 7px;
+    font-size: 0.82rem;
+  }
+
+  .dashboard-aside-stats {
+    flex-direction: column;
+  }
+
+  .dashboard-stat-card--mini {
+    flex: 1 1 100%;
   }
 }
 
@@ -739,61 +977,6 @@ button {
 .activity-item-amount {
   font-weight: 800;
   white-space: nowrap;
-}
-
-.dashboard-balance-card {
-  min-height: 100%;
-  background:
-    linear-gradient(135deg, color-mix(in srgb, var(--accent) 28%, transparent), color-mix(in srgb, var(--accent-warm) 22%, transparent)),
-    var(--card-bg);
-  position: relative;
-  overflow: hidden;
-  border-radius: 24px;
-  padding: 22px;
-  display: flex;
-  flex-direction: column;
-  color: var(--text);
-  isolation: isolate;
-}
-
-.dashboard-balance-card::before {
-  content: "";
-  position: absolute;
-  width: 44px;
-  height: 32px;
-  top: 22px;
-  right: 22px;
-  border-radius: 6px;
-  background: linear-gradient(135deg, var(--accent-warm), var(--accent));
-  opacity: 0.9;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.3);
-  z-index: 1;
-}
-
-.dashboard-balance-card::after {
-  content: "";
-  position: absolute;
-  width: 48px;
-  height: 36px;
-  top: 22px;
-  left: 22px;
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.22);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.4);
-  background-image:
-    radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.6) 8%, transparent 9%),
-    radial-gradient(circle at 70% 30%, rgba(255, 255, 255, 0.6) 8%, transparent 9%),
-    radial-gradient(circle at 50% 60%, rgba(255, 255, 255, 0.6) 8%, transparent 9%);
-  z-index: 1;
-}
-
-:root[data-theme="dark"] .dashboard-balance-card::before {
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
-}
-
-:root[data-theme="dark"] .dashboard-balance-card::after {
-  background: rgba(255, 255, 255, 0.14);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
 }
 
 .dashboard-promo-card {
@@ -1416,7 +1599,8 @@ button {
 
 .auth-social-row {
   margin-top: 24px;
-  flex-wrap: wrap;
+  display: flex;
+  justify-content: center;
 }
 
 .auth-social-button,
@@ -1456,12 +1640,6 @@ button {
 .auth-social-mark.is-google {
   background: #fff;
   box-shadow: inset 0 0 0 1px rgba(66, 133, 244, 0.12);
-}
-
-.auth-social-mark.is-instagram {
-  background: linear-gradient(135deg, var(--instagram-start), var(--instagram-mid), var(--instagram-end));
-  color: #fff;
-  box-shadow: 0 10px 22px rgba(221, 42, 123, 0.24);
 }
 
 .auth-social-icon {
@@ -1719,20 +1897,6 @@ button {
   .shell-footer-right {
     align-items: flex-start;
     text-align: left;
-  }
-
-  .dashboard-chart-panel,
-  .expense-form-card,
-  .expense-list-card,
-  .expense-chart-card,
-  .dashboard-promo-card,
-  .expense-spotlight-card {
-    padding: 18px;
-  }
-
-  .dashboard-balance-card {
-    width: 100%;
-    padding: 22px;
   }
 
   .auth-shell {

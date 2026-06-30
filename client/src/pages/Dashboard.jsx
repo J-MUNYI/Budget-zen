@@ -50,13 +50,11 @@ function InsightsFlywheel() {
     const endAngle = (cursor + seg.pct) * 360;
     cursor += seg.pct;
 
-    // mid-angle for label placement
     const midAngle = ((startAngle + endAngle) / 2 - 90) * (Math.PI / 180);
     const labelR = r * 0.68;
     const lx = cx + labelR * Math.cos(midAngle);
     const ly = cy + labelR * Math.sin(midAngle);
 
-    // outer label
     const outerR = r + 22;
     const ox = cx + outerR * Math.cos(midAngle);
     const oy = cy + outerR * Math.sin(midAngle);
@@ -95,15 +93,8 @@ function InsightsFlywheel() {
           ))}
         </defs>
 
-        {/* Outer ring track */}
-        <circle
-          cx={cx} cy={cy} r={r}
-          fill="none"
-          stroke="var(--border)"
-          strokeWidth="1"
-        />
+        <circle cx={cx} cy={cy} r={r} fill="none" stroke="var(--border)" strokeWidth="1" />
 
-        {/* Segments */}
         {segments.map((seg) => {
           const isHov = hovered === seg.label;
           const gap = 1.8;
@@ -122,7 +113,6 @@ function InsightsFlywheel() {
                 onMouseEnter={() => setHovered(seg.label)}
                 onMouseLeave={() => setHovered(null)}
               />
-              {/* Segment icon */}
               <text
                 x={seg.lx}
                 y={seg.ly}
@@ -137,11 +127,9 @@ function InsightsFlywheel() {
           );
         })}
 
-        {/* Centre hole */}
         <circle cx={cx} cy={cy} r={innerR} fill="var(--card-bg)" />
         <circle cx={cx} cy={cy} r={innerR} fill="none" stroke="var(--border)" strokeWidth="1" />
 
-        {/* Centre label */}
         <text
           x={cx} y={cy - 8}
           textAnchor="middle"
@@ -165,7 +153,6 @@ function InsightsFlywheel() {
         </text>
       </svg>
 
-      {/* Legend grid */}
       <div
         style={{
           display: "grid",
@@ -253,14 +240,69 @@ function CustomTrendTooltip({ active, payload, label }) {
   );
 }
 
-// ─── M-Pesa mask ─────────────────────────────────────────────────────────────
-function MpesaMaskRow({ last4 }) {
+// ─── Bank card ───────────────────────────────────────────────────────────────
+// A real card has: chip, contactless icon, masked PAN with even grouping,
+// cardholder name, expiry, and a network mark — all anchored to the card's
+// physical corners rather than floating in a generic panel.
+function BankCard({ balance, last4, holderName }) {
   const tail = String(last4 || "").replace(/\D/g, "").slice(-4);
   const lastGroup = tail.length === 4 ? tail : "••••";
-  const groups = ["••••", "••••", "••••", lastGroup];
+
   return (
-    <div className="dashboard-balance-number-row">
-      {groups.map((g, i) => <span key={`${i}-${g}`}>{g}</span>)}
+    <div className="dashboard-bank-card">
+      <div className="dashboard-bank-card-glow" aria-hidden="true" />
+
+      <div className="dashboard-bank-card-top">
+        <div>
+          <p className="dashboard-bank-label">M-Pesa balance</p>
+          <p className="dashboard-bank-amount">
+            KES {Number(balance || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}
+          </p>
+        </div>
+        <svg className="dashboard-bank-contactless" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M8 11a5 5 0 0 1 7 0" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+          <path d="M5.5 8.5a8.5 8.5 0 0 1 12 0" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" opacity="0.7" />
+          <path d="M10.5 13.4a2.4 2.4 0 0 1 3 0" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+        </svg>
+      </div>
+
+      <div className="dashboard-bank-chip" aria-hidden="true">
+        <svg width="36" height="28" viewBox="0 0 36 28" fill="none">
+          <rect x="0.5" y="0.5" width="35" height="27" rx="5" fill="url(#chipGradient)" stroke="rgba(0,0,0,0.25)" />
+          <line x1="12" y1="0.5" x2="12" y2="27.5" stroke="rgba(0,0,0,0.2)" strokeWidth="0.6" />
+          <line x1="24" y1="0.5" x2="24" y2="27.5" stroke="rgba(0,0,0,0.2)" strokeWidth="0.6" />
+          <line x1="0.5" y1="14" x2="35.5" y2="14" stroke="rgba(0,0,0,0.2)" strokeWidth="0.6" />
+          <defs>
+            <linearGradient id="chipGradient" x1="0" y1="0" x2="36" y2="28">
+              <stop offset="0%" stopColor="#F4D78C" />
+              <stop offset="100%" stopColor="#C9A857" />
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+
+      <p className="dashboard-bank-number">
+        <span>••••</span><span>••••</span><span>••••</span><span>{lastGroup}</span>
+      </p>
+
+      <div className="dashboard-bank-card-bottom">
+        <div>
+          <p className="dashboard-bank-meta-label">Card holder</p>
+          <p className="dashboard-bank-meta-value">{holderName || "Account holder"}</p>
+        </div>
+        <div>
+          <p className="dashboard-bank-meta-label">Valid thru</p>
+          <p className="dashboard-bank-meta-value">••/••</p>
+        </div>
+        <div className="dashboard-bank-network" aria-hidden="true">
+          <span className="dashboard-bank-network-circle dashboard-bank-network-circle--a" />
+          <span className="dashboard-bank-network-circle dashboard-bank-network-circle--b" />
+        </div>
+      </div>
+
+      <Link to="/wallet" className="dashboard-bank-link">
+        Update in Wallet →
+      </Link>
     </div>
   );
 }
@@ -350,23 +392,15 @@ export default function Dashboard() {
       : { label: "Spent This Month", value: `KES ${cmSpent.toLocaleString()}`, copy: "Month-to-date outflows" },
   ];
 
+  // ── Right column: bank card → category breakdown donut → stacked stat cards ──
   const aside = (
     <>
-      {/* M-Pesa balance card */}
-      <div className="dashboard-balance-card">
-        <p className="dashboard-balance-label">M-Pesa Balance</p>
-        <p className="dashboard-balance-amount">
-          KES {mpesaBalance.toLocaleString(undefined, { maximumFractionDigits: 2 })}
-        </p>
-        <MpesaMaskRow last4={user?.mpesaPhoneLast4} />
-        <p className="dashboard-balance-date" style={{ marginTop: 10 }}>
-          <Link to="/wallet" style={{ color: "inherit", textDecoration: "underline", opacity: 0.85, fontFamily: "var(--font-primary)" }}>
-            Update in Wallet →
-          </Link>
-        </p>
-      </div>
+      <BankCard
+        balance={mpesaBalance}
+        last4={user?.mpesaPhoneLast4}
+        holderName={user?.name}
+      />
 
-      {/* Donut chart */}
       <ExpenseChart data={
         Object.values(
           expenses.reduce((acc, exp) => {
@@ -376,6 +410,18 @@ export default function Dashboard() {
           }, {})
         )
       } />
+
+      <div className="dashboard-aside-stats">
+        {statCards.map((stat, index) => (
+          <div key={stat.label} className="dashboard-stat-card dashboard-stat-card--mini">
+            <p className="dashboard-stat-label" style={{ fontFamily: "var(--font-primary)" }}>{stat.label}</p>
+            <p className="dashboard-stat-value" style={{ color: cardPalette[index], fontFamily: "var(--font-secondary)" }}>
+              {stat.value}
+            </p>
+            <p className="dashboard-stat-copy" style={{ fontFamily: "var(--font-primary)" }}>{stat.copy}</p>
+          </div>
+        ))}
+      </div>
     </>
   );
 
@@ -427,7 +473,7 @@ export default function Dashboard() {
           </label>
         </div>
 
-        {/* ── Chart panel — clean, no ContainerScroll wrapper ── */}
+        {/* ── Chart panel ── */}
         <div className="dashboard-chart-panel">
           <div className="dashboard-chart-header">
             <div>
@@ -464,7 +510,6 @@ export default function Dashboard() {
                   </linearGradient>
                 </defs>
 
-                {/* Horizontal rules only — no vertical, no border box */}
                 <CartesianGrid
                   horizontal={true}
                   vertical={false}
@@ -476,22 +521,14 @@ export default function Dashboard() {
                   dataKey="month"
                   axisLine={false}
                   tickLine={false}
-                  tick={{
-                    fill: "var(--text-soft)",
-                    fontSize: 11,
-                    fontFamily: "var(--font-primary)",
-                  }}
+                  tick={{ fill: "var(--text-soft)", fontSize: 11, fontFamily: "var(--font-primary)" }}
                   dy={8}
                 />
                 <YAxis
                   axisLine={false}
                   tickLine={false}
                   tickFormatter={(v) => v >= 1000 ? `${v / 1000}k` : `${v}`}
-                  tick={{
-                    fill: "var(--text-soft)",
-                    fontSize: 11,
-                    fontFamily: "var(--font-primary)",
-                  }}
+                  tick={{ fill: "var(--text-soft)", fontSize: 11, fontFamily: "var(--font-primary)" }}
                   width={44}
                 />
                 <Tooltip content={<CustomTrendTooltip />} cursor={{ stroke: "var(--border-strong)", strokeWidth: 1 }} />
@@ -524,7 +561,6 @@ export default function Dashboard() {
             </ResponsiveContainer>
           )}
 
-          {/* Month chips row */}
           <div style={{ display: "flex", justifyContent: "center", gap: 6, marginTop: 14, flexWrap: "wrap" }}>
             {trendRows.map((item) => (
               <span
@@ -536,19 +572,6 @@ export default function Dashboard() {
               </span>
             ))}
           </div>
-        </div>
-
-        {/* ── Stat cards ── */}
-        <div className="dashboard-metric-grid">
-          {statCards.map((stat, index) => (
-            <div key={stat.label} className="dashboard-stat-card">
-              <p className="dashboard-stat-label" style={{ fontFamily: "var(--font-primary)" }}>{stat.label}</p>
-              <p className="dashboard-stat-value" style={{ color: cardPalette[index], fontFamily: "var(--font-secondary)" }}>
-                {stat.value}
-              </p>
-              <p className="dashboard-stat-copy" style={{ fontFamily: "var(--font-primary)" }}>{stat.copy}</p>
-            </div>
-          ))}
         </div>
 
         {/* ── Lower grid: transactions + insights flywheel ── */}
@@ -569,7 +592,6 @@ export default function Dashboard() {
               Tap any category to explore spending patterns. Generate analysis and practical advice from your recorded expenses.
             </p>
 
-            {/* Flywheel replaces the old illustration */}
             <InsightsFlywheel />
 
             <Link
