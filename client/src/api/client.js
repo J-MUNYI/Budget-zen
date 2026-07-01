@@ -86,9 +86,9 @@ export async function generateInsights(additionalContext) {
 }
 
 export async function testDarajaConnection() {
-  return apiFetch("/api/mpesa/daraja/test");
+  return apiFetch("/api/admin/integrations/daraja/test");
 }
 
 export async function requestMpesaAccountBalance() {
-  return apiFetch("/api/mpesa/account-balance", { method: "POST", body: "{}" });
+  return apiFetch("/api/admin/integrations/daraja/balance", { method: "POST", body: "{}" });
 }

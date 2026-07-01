@@ -6,12 +6,12 @@ const userSchema = new mongoose.Schema({
   password: { 
     type: String, 
     required: function() {
-      // Password is required only if user doesn't have OAuth IDs
       return !this.googleId && !this.instagramId;
     }
   },
   googleId: { type: String, sparse: true },
   instagramId: { type: String, sparse: true },
+  role: { type: String, enum: ['user', 'admin'], default: 'user' },
   monthlyIncome: { 
     type: Number, 
     default: null,

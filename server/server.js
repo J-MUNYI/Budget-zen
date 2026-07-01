@@ -61,6 +61,7 @@ const expenseRoutes = require('./routes/expenses');
 const userRoutes = require('./routes/user');
 const insightsRoutes = require('./routes/insights');
 const mpesaRoutes = require('./routes/mpesa');
+const adminRoutes = require('./routes/admin');
 
 // Root route
 app.get('/', (req, res) => {
@@ -73,6 +74,7 @@ app.use('/api/expenses', expenseRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/insights', insightsRoutes);
 app.use('/api/mpesa', mpesaRoutes);
+app.use('/api/admin', adminRoutes);
 
 // 404 handler
 app.use((req, res) => {

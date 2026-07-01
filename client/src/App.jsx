@@ -8,6 +8,8 @@ import AuthCallback from "./pages/AuthCallback";
 import Wallet from "./pages/Wallet";
 import Insights from "./pages/Insights";
 import OAuthCallback from "./pages/OAuthCallback";
+import Privacy from "./pages/Privacy";
+import AdminIntegrations from "./pages/AdminIntegrations";
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -67,6 +69,15 @@ function App() {
           element={
             <ProtectedRoute>
               <Insights />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/privacy" element={<Privacy />} />
+        <Route
+          path="/admin/integrations"
+          element={
+            <ProtectedRoute>
+              <AdminIntegrations />
             </ProtectedRoute>
           }
         />
