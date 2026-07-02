@@ -201,6 +201,20 @@ export default function AppShell({ title, subtitle, children, aside }) {
                   {item.label}
                 </Link>
               ))}
+              <Link
+                to="/privacy"
+                style={{
+                  fontSize: "0.8rem",
+                  color: "var(--text-muted)",
+                  textDecoration: "none",
+                  fontFamily: "var(--font-primary)",
+                  transition: "color 0.2s",
+                }}
+                onMouseEnter={(e) => (e.target.style.color = "var(--accent)")}
+                onMouseLeave={(e) => (e.target.style.color = "var(--text-muted)")}
+              >
+                Privacy Policy
+              </Link>
             </div>
 
             {/* Credit */}
